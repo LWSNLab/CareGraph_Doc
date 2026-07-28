@@ -1,0 +1,42 @@
+site_name: CareGraph Documentation
+site_description: Open Health & Care Infrastructure Graph for Germany
+site_author: CareGraph Team
+repo_url: https://github.com/your-username/caregraph_doc
+repo_name: caregraph_doc
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Overview: index.md
+  - Architecture:
+      - System Overview: architecture/system-overview.md
+      - Data Schema: architecture/data-schema.md
+      - Security & Privacy: architecture/security.md
+  - API Specification: api/openapi-spec.md
+  - Project Management:
+      - Roadmap: pm/roadmap.md
+      - Open Source Strategy: pm/open-source-strategy.md
+      - Funding Draft (Prototype Fund): pm/funding-proposal.md
