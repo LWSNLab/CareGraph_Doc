@@ -1,325 +1,95 @@
-# 🔌 OpenAPI 3.1.0 Specification
+# 🔌 API Specification
 
 > **Base URL (Production):** `https://api.caregraph.de/v1`
 > **Base URL (Local Dev):** `http://localhost:8080/v1`
-> **Authentication:** API Key via HTTP Header (`X-API-Key`)
+> **Authentication:** API key via HTTP header (`X-API-Key`)
 
 ---
 
-## 1. Overview & Endpoints Summary
+## 1. Canonical Specification
 
-The CareGraph API provides high-performance, low-latency spatial and text-search endpoints for German healthcare and care infrastructure data.
+The machine-readable contract lives in a single source of truth:
 
-| Method | Endpoint | Description | Auth Required |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/infrastructure/near` | Spatial radius search using PostGIS `ST_DWithin` | Yes |
-| `GET` | `/infrastructure/search` | In-memory fuzzy text search via Typesense (C++) | Yes |
-| `GET` | `/infrastructure/{ik_nummer}` | Fetch single provider entity by 9-digit IK Number | Yes |
-| `GET` | `/healthz` | Liveness & Readiness probe for monitoring | No |
+**➡️ [`openapi.yaml`](openapi.yaml)** (OpenAPI 3.1.0)
+
+Use it directly — do not copy-paste from this page:
+
+- **Explore / try it:** paste the file into [editor.swagger.io](https://editor.swagger.io/).
+- **Generate Go DTOs & server stubs:** `oapi-codegen -package api docs/api/openapi.yaml`.
+- **Generate clients:** any OpenAPI generator (TypeScript, Python, etc.).
+
+This page is the human-readable summary; `openapi.yaml` always wins if the two ever disagree.
 
 ---
 
-## 2. OpenAPI 3.1.0 Specification (YAML)
+## 2. Endpoints
 
-Below is the machine-readable OpenAPI 3.1 specification. You can copy this YAML block into [Editor.Swagger.io](https://editor.swagger.io/) or use it to generate Go DTOs automatically via `oapi-codegen`.
+| Method | Endpoint | Description | Auth |
+| :--- | :--- | :--- | :---: |
+| `GET` | `/infrastructure/near` | Spatial radius search via PostGIS `ST_DWithin` | ✅ |
+| `GET` | `/infrastructure/search` | In-memory fuzzy text search via Typesense (C++) | ✅ |
+| `GET` | `/infrastructure/{ik_nummer}` | Fetch a single provider by 9-digit IK number | ✅ |
+| `GET` | `/healthz` | Liveness & readiness probe | ❌ |
 
-```yaml
-openapi: 3.1.0
-info:
-  title: CareGraph API
-  description: |
-    High-performance Open Health & Care Infrastructure Graph for Germany.
-    Provides spatial radius search, fuzzy text search, and standardized provider data.
-  version: 1.0.0
-  contact:
-    name: CareGraph API Team
-    url: [https://caregraph.de](https://caregraph.de)
-    email: support@caregraph.de
-  license:
-    name: AGPL-3.0
-    url: [https://www.gnu.org/licenses/agpl-3.0.html](https://www.gnu.org/licenses/agpl-3.0.html)
+### `GET /infrastructure/near`
 
-servers:
-  - url: [https://api.caregraph.de/v1](https://api.caregraph.de/v1)
-    description: Production Gateway
-  - url: http://localhost:8080/v1
-    description: Local Development Environment
+| Parameter | Type | Required | Description |
+| :--- | :--- | :---: | :--- |
+| `lat` | `float` | ✅ | Latitude, WGS 84 (e.g. `48.7182`) |
+| `lng` | `float` | ✅ | Longitude, WGS 84 (e.g. `10.7781`) |
+| `radius_km` | `float` | ❌ | Search radius in km (default `10.0`, max `100.0`) |
+| `type` | `enum` | ❌ | `krankenkasse`, `pflegedienst_ambulant`, `pflegeheim_stationaer`, `pflegestuetzpunkt` |
+| `limit` | `int` | ❌ | Max results (default `20`, max `100`) |
 
-security:
-  - ApiKeyAuth: []
+### `GET /infrastructure/search`
 
-paths:
-  /infrastructure/near:
-    get:
-      summary: Search nearby care infrastructure
-      description: Returns healthcare and care providers within a specified radius around latitude/longitude coordinates using PostGIS spatial indexing.
-      operationId: getNearbyInfrastructure
-      tags:
-        - Infrastructure
-      parameters:
-        - name: lat
-          in: query
-          required: true
-          description: Latitude in WGS 84 format (e.g. 48.7182)
-          schema:
-            type: number
-            format: float
-            example: 48.7182
-        - name: lng
-          in: query
-          required: true
-          description: Longitude in WGS 84 format (e.g. 10.7781)
-          schema:
-            type: number
-            format: float
-            example: 10.7781
-        - name: radius_km
-          in: query
-          required: false
-          description: Search radius in kilometers (default 10.0, max 100.0)
-          schema:
-            type: number
-            format: float
-            default: 10.0
-            example: 15.0
-        - name: type
-          in: query
-          required: false
-          description: Filter by specific provider type
-          schema:
-            $ref: '#/components/schemas/ProviderType'
-        - name: limit
-          in: query
-          required: false
-          description: Maximum number of results (default 20, max 100)
-          schema:
-            type: integer
-            default: 20
-            maximum: 100
+| Parameter | Type | Required | Description |
+| :--- | :--- | :---: | :--- |
+| `q` | `string` | ✅ | Query string, min length 2 (e.g. `"Caritas Pflegedienst"`) |
+| `city` | `string` | ❌ | Optional city filter |
 
-      responses:
-        '200':
-          description: Successful spatial search response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InfrastructureListResponse'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
-        '401':
-          $ref: '#/components/responses/401Unauthorized'
-        '429':
-          $ref: '#/components/responses/429TooManyRequests'
+### `GET /infrastructure/{ik_nummer}`
 
-  /infrastructure/search:
-    get:
-      summary: Fuzzy text search for infrastructure
-      description: Uses Typesense (C++ core) for typo-tolerant, in-memory searching across provider names, cities, and services.
-      operationId: searchInfrastructure
-      tags:
-        - Infrastructure
-      parameters:
-        - name: q
-          in: query
-          required: true
-          description: Search query string (e.g., "Caritas Donauwörth" or "AOK")
-          schema:
-            type: string
-            minLength: 2
-            example: "Caritas Pflegedienst"
-        - name: city
-          in: query
-          required: false
-          description: Optional city filter
-          schema:
-            type: string
-            example: "Donauwörth"
+Path parameter `ik_nummer` — the official 9-digit Institutionskennzeichen (`^[0-9]{9}$`).
 
-      responses:
-        '200':
-          description: Successful search response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InfrastructureListResponse'
-        '400':
-          $ref: '#/components/responses/400BadRequest'
+---
 
-  /infrastructure/{ik_nummer}:
-    get:
-      summary: Get provider by Institution Code (IK Number)
-      description: Retrieves a single infrastructure entity using its unique 9-digit German Institutionskennzeichen.
-      operationId: getProviderByIK
-      tags:
-        - Infrastructure
-      parameters:
-        - name: ik_nummer
-          in: path
-          required: true
-          description: 9-digit official IK number
-          schema:
-            type: string
-            pattern: '^[0-9]{9}$'
-            example: "490123456"
+## 3. Example Response (`200 OK`)
 
-      responses:
-        '200':
-          description: Provider entity found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CareProvider'
-        '404':
-          description: Provider not found
+```json
+{
+  "total": 1,
+  "data": [
+    {
+      "id": "c3b9a12e-1234-5678-90ab-cdef12345678",
+      "ik_nummer": "490123456",
+      "type": "pflegedienst_ambulant",
+      "name": "Ambulanter Pflegedienst Muster",
+      "parent_organization": "Caritasverband",
+      "website": "https://pflegedienst-muster.de",
+      "address": {
+        "street": "Bahnhofstraße 12",
+        "postal_code": "86609",
+        "city": "Donauwörth",
+        "state": "Bayern"
+      },
+      "distance_km": 1.42,
+      "details": {
+        "phone": "+49 906 123456",
+        "services": ["grundpflege", "behandlungspflege", "palliative"],
+        "zusatzbeitrag": 2.90
+      }
+    }
+  ]
+}
+```
 
-  /healthz:
-    get:
-      summary: Liveness and Readiness Probe
-      description: Returns service health status including DB and Redis connection states.
-      security: []
-      tags:
-        - System
-      responses:
-        '200':
-          description: System healthy
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: "ok"
-                  timestamp:
-                    type: string
-                    format: date-time
+---
 
-components:
-  securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: X-API-Key
-      description: B2B API Key authentication header.
+## 4. Errors & Auth
 
-  schemas:
-    ProviderType:
-      type: string
-      enum:
-        - krankenkasse
-        - pflegedienst_ambulant
-        - pflegeheim_stationaer
-        - pflegestuetzpunkt
+- **Authentication:** send the B2B key in the `X-API-Key` header. Missing/invalid → `401`.
+- **Validation:** malformed coordinates or parameters → `400`.
+- **Rate limiting:** exceeding your tier → `429` (see [Security](../architecture/security.md#2-api-gateway-security)).
 
-    Address:
-      type: object
-      required:
-        - street
-        - postal_code
-        - city
-      properties:
-        street:
-          type: string
-          example: "Bahnhofstraße 12"
-        postal_code:
-          type: string
-          example: "86609"
-        city:
-          type: string
-          example: "Donauwörth"
-        state:
-          type: string
-          example: "Bayern"
-
-    CareProvider:
-      type: object
-      required:
-        - id
-        - type
-        - name
-        - address
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: "c3b9a12e-1234-5678-90ab-cdef12345678"
-        ik_nummer:
-          type: string
-          nullable: true
-          example: "490123456"
-        type:
-          $ref: '#/components/schemas/ProviderType'
-        name:
-          type: string
-          example: "Ambulanter Pflegedienst Muster"
-        parent_organization:
-          type: string
-          nullable: true
-          example: "Caritasverband"
-        website:
-          type: string
-          format: uri
-          nullable: true
-          example: "[https://pflegedienst-muster.de](https://pflegedienst-muster.de)"
-        address:
-          $ref: '#/components/schemas/Address'
-        distance_km:
-          type: number
-          format: float
-          nullable: true
-          description: Included in spatial radius queries
-          example: 1.42
-        details:
-          type: object
-          additionalProperties: true
-          description: Dynamic JSON metadata (e.g. additional contribution rate, services offered)
-          example:
-            phone: "+49 906 123456"
-            services: ["grundpflege", "behandlungspflege", "palliative"]
-            zusatzbeitrag: 2.90
-
-    InfrastructureListResponse:
-      type: object
-      required:
-        - total
-        - data
-      properties:
-        total:
-          type: integer
-          example: 1
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/CareProvider'
-
-  responses:
-    400BadRequest:
-      description: Invalid query parameters
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-                example: "Invalid latitude or longitude value"
-    401Unauthorized:
-      description: Missing or invalid API Key
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-                example: "Unauthorized: Invalid API Key provided"
-    429TooManyRequests:
-      description: Rate limit exceeded
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              error:
-                type: string
-                example: "Rate limit exceeded. Try again in 60 seconds."
+Error bodies follow `{ "error": "<message>" }`. Full response schemas are in [`openapi.yaml`](openapi.yaml).

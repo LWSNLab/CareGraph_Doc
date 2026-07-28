@@ -1,133 +1,74 @@
-# 🗄️ Database Schema & Spatial Engine (PostgreSQL / PostGIS)
+# 🔒 Security, Compliance & Privacy Concept
 
-> **Database Version:** PostgreSQL 16+ with PostGIS 3.4 Extension
-> **Primary Identifier:** Institutionskennzeichen (`ik_nummer`, 9-digit official ID) or UUIDv4
-
----
-
-# 1. Architectural Philosophy
-
-CareGraph uses a **hybrid relational schema**:
-
-1. **Core Attributes** (ID, IK Number, Name, Structured Address, Geolocation) are stored in strict, indexed SQL columns.
-2. **Dynamic Metadata** (insurance supplementary contribution rates, specific care services, MDK quality ratings, etc.) are stored in PostgreSQL `JSONB` columns.
-
-This design eliminates the need for schema migrations whenever external data sources introduce new attributes while still providing high query performance for structured data.
+> **Standard:** GDPR (DSGVO) Compliant by Design
+> **Security Architecture:** Zero-Trust Internal Networking, Least Privilege DB Roles, Hashed Key Auth
 
 ---
 
-# 2. DDL Specification
+## 1. Privacy & GDPR Compliance
 
-```sql
--- Create ENUM for provider classifications
-CREATE TYPE provider_type AS ENUM (
-    'krankenkasse',
-    'pflegedienst_ambulant',
-    'pflegeheim_stationaer',
-    'pflegestuetzpunkt'
-);
+Location queries often expose private user data (e.g., an exact home coordinate). CareGraph enforces strict data minimization principles:
 
--- Core Infrastructure Table
-CREATE TABLE care_infrastructure (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    ik_nummer VARCHAR(9) UNIQUE,                   -- Official 9-digit Institution Code
-    type provider_type NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    parent_organization VARCHAR(255),             -- e.g. "Caritas", "Diakonie", "AOK"
-    website VARCHAR(255),
+* **Zero Coordinate Logging:** The Go API Gateway **never logs exact latitude and longitude queries** in plaintext access logs. Logs only record rounded coordinates or municipal IDs (e.g., postal-code level).
+* **IP Anonymization:** Inbound client IP addresses are truncated/anonymized before being passed to internal logger middleware.
+* **Public-Domain Data Focus:** CareGraph only processes official, publicly listed institution data (per § 7 SGB XI). No private health records or patient details are handled.
 
-    -- Structured Address Data
-    strasse VARCHAR(255),
-    plz VARCHAR(10) NOT NULL,
-    ort VARCHAR(100) NOT NULL,
-    bundesland VARCHAR(50),
+> The legal basis of the *ingested* data (source terms, database rights, republishing) is a separate concern — see [Data Sources & Licensing](../legal/data-licensing.md). This document covers the platform's runtime security.
 
-    -- PostGIS Spatial Data (WGS84 / SRID 4326)
-    location GEOGRAPHY(Point, 4326),
+---
 
-    -- Dynamic Metadata Store
-    details JSONB DEFAULT '{}'::jsonb,
+## 2. API & Gateway Security
 
-    scraping_status VARCHAR(50) DEFAULT 'raw',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+* **B2B API Key Authentication**
+    * API keys are passed via HTTP header (`X-API-Key`).
+    * Keys are stored in PostgreSQL as **Argon2id (or bcrypt) hashes** — never in plaintext.
+* **Rate Limiting**
+    * Redis-backed token-bucket algorithm prevents scraping abuse and denial-of-service (DoS).
+    * Default tiers: Community (100 req/min/IP), B2B Enterprise (custom SLAs).
+* **Transport Security**
+    * Strict HTTPS enforcement via TLS 1.3.
+    * Essential security headers: `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `Strict-Transport-Security`.
 
--- Spatial GIST Index for Sub-5ms Radius Queries
-CREATE INDEX idx_care_infra_location
-ON care_infrastructure
-USING GIST (location);
+---
 
--- Compound Index for Common Filtering
-CREATE INDEX idx_care_infra_type_plz
-ON care_infrastructure (type, plz);
+## 3. Database & Network Isolation
 
--- JSONB GIN Index for Metadata Searches
-CREATE INDEX idx_care_infra_details
-ON care_infrastructure
-USING GIN (details);
+* **Least-Privilege Access Control**
+    * **Python Ingestion Worker:** dedicated write-scoped DB role (`INSERT`/`UPDATE` only). It cannot serve public read queries.
+    * **Go API Gateway:** `READ-ONLY` DB role. Even if the gateway were compromised, records cannot be dropped or corrupted.
+* **Internal Docker Network**
+    * PostgreSQL, Typesense, and Redis run inside an isolated internal Docker network without public port exposure.
+    * Only the Go API Gateway (port 443) is exposed to the outside world.
+
+```text
+  [ PUBLIC INTERNET ]
+          │
+          ▼ (Port 443 / HTTPS)
+┌─────────────────────────────────────────┐
+│             Go API Gateway              │
+└────────────────────┬────────────────────┘
+                     │ (Internal Docker Network)
+       ┌─────────────┼─────────────┐
+       ▼             ▼             ▼
+┌─────────────┐┌───────────┐┌──────────────┐
+│ PostgreSQL  ││ Typesense ││    Redis     │
+│  (PostGIS)  ││   (C++)   ││(Rate Limit)  │
+└─────────────┘└───────────┘└──────────────┘
 ```
 
 ---
 
-# 3. Key Spatial Queries
+## 4. Managed-Platform Note (Supabase / PostgREST)
 
-## Radius Distance Query (`ST_DWithin`)
+In the early phases CareGraph runs on **managed PostgreSQL (Supabase)** before the dedicated Go gateway exists. The same principles hold via platform primitives:
 
-Retrieves all care providers within a specified distance (in meters) from a coordinate point, sorted by proximity.
+* **Row-Level Security (RLS)** is enabled on every table in the `public` schema, with an explicit read-only policy for the `anon` and `authenticated` roles — public reference data is world-readable, writes go only through `service_role`.
+* Writes run exclusively through the ingestion pipeline (SQL editor / `service_role`), never through a public API key.
 
-```sql
-SELECT
-    id,
-    ik_nummer,
-    name,
-    type,
-    strasse,
-    plz,
-    ort,
-    ST_Distance(
-        location,
-        ST_MakePoint($1, $2)::geography
-    ) / 1000.0 AS distance_km
-FROM
-    care_infrastructure
-WHERE
-    ST_DWithin(
-        location,
-        ST_MakePoint($1, $2)::geography,
-        $3              -- Radius in meters
-    )
-    AND ($4::provider_type IS NULL OR type = $4)
-ORDER BY
-    distance_km ASC
-LIMIT 50;
-```
-
-### Query Parameters
-
-| Parameter | Type | Description |
-| :--- | :--- | :--- |
-| `$1` | `float` | Longitude |
-| `$2` | `float` | Latitude |
-| `$3` | `integer` | Search radius in meters |
-| `$4` | `provider_type` | Optional provider type filter |
+This keeps the posture consistent while the stack migrates from managed Postgres to the self-hosted, isolated deployment above.
 
 ---
 
-# 4. Indexing Strategy
+## 5. Responsible Disclosure
 
-| Index | Type | Purpose |
-| :--- | :--- | :--- |
-| `idx_care_infra_location` | `GIST` | Accelerates spatial radius and nearest-neighbor searches. |
-| `idx_care_infra_type_plz` | `B-Tree` | Optimizes filtering by provider type and postal code. |
-| `idx_care_infra_details` | `GIN` | Enables fast lookups inside dynamic `JSONB` metadata. |
-
----
-
-# 5. Design Decisions
-
-- **UUIDv4** is used as the internal primary key for globally unique identifiers.
-- **`ik_nummer`** serves as the official external identifier whenever available.
-- **`GEOGRAPHY(Point, 4326)`** provides accurate geodesic distance calculations without manual projection handling.
-- **`JSONB`** allows ingestion of heterogeneous provider metadata without frequent schema migrations.
-- **PostGIS GIST indexes** enable radius searches with response times typically below 5 ms on indexed datasets.
+Security issues are handled via coordinated disclosure (`SECURITY.md`, private vulnerability reporting). Automated dependency and container scanning (Dependabot, Trivy) run in CI. See [Open Source Strategy](../pm/open-source-strategy.md) for the full governance process.

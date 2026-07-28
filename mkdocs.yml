@@ -1,8 +1,8 @@
 site_name: CareGraph Documentation
 site_description: Open Health & Care Infrastructure Graph for Germany
 site_author: CareGraph Team
-repo_url: https://github.com/your-username/caregraph_doc
-repo_name: caregraph_doc
+repo_url: https://github.com/LWSNLab/CareGraph_Doc
+repo_name: LWSNLab/CareGraph_Doc
 
 theme:
   name: material
@@ -35,6 +35,8 @@ nav:
       - System Overview: architecture/system-overview.md
       - Data Schema: architecture/data-schema.md
       - Security & Privacy: architecture/security.md
+  - Data & Legal:
+      - Data Sources & Licensing: legal/data-licensing.md
   - API Specification: api/openapi-spec.md
   - Project Management:
       - Roadmap: pm/roadmap.md
