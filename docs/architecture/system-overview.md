@@ -109,8 +109,8 @@ Retrieves providers within a given radius around spatial coordinates.
       "name": "Ambulanter Pflegedienst Muster",
       "address": {
         "street": "Bahnhofstraße 12",
-        "postal_code": "86609",
-        "city": "Donauwörth"
+        "postal_code": "12345",
+        "city": "Musterstadt"
       },
       "distance_km": 1.42,
       "details": {
