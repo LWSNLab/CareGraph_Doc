@@ -2,7 +2,7 @@
 
 > **Product:** CareGraph — Open Health & Care Infrastructure Graph for Germany
 > **Version:** 0.1 (Draft) · **Status:** Living document · **Scope:** Full platform (all phases)
-> **Related:** [Roadmap](roadmap.md) · [Epics & Stories](epics-and-stories.md) · [System Overview](../architecture/system-overview.md) · [Data Schema](../architecture/data-schema.md) · [Data Sources & Licensing](../legal/data-licensing.md)
+> **Related:** [Roadmap](roadmap.md) · [Epics & Stories](stories/index.md) · [System Overview](../architecture/system-overview.md) · [Data Schema](../architecture/data-schema.md) · [Data Sources & Licensing](../legal/data-licensing.md)
 
 ---
 
@@ -144,7 +144,7 @@ Open Core + managed DaaS. The software is AGPLv3 and self-hostable; the paid ser
 
 ## 12. Milestones & Release Strategy
 
-Phased delivery to a public **v1.0.0** (target Q1 2027), detailed in the [Roadmap](roadmap.md). Each phase maps to an epic in the [Epics & Stories](epics-and-stories.md) backlog. The first external release is a read-only Community API once Phases 1–3 are complete.
+Phased delivery to a public **v1.0.0** (target Q1 2027), detailed in the [Roadmap](roadmap.md). Each phase maps to an epic in the [Epics & Stories](stories/index.md) backlog. The first external release is a read-only Community API once Phases 1–3 are complete.
 
 ---
 
