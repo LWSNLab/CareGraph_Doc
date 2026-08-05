@@ -45,6 +45,8 @@ nav:
       - Data Sources & Licensing: legal/data-licensing.md
   - API Specification: api/openapi-spec.md
   - Project Management:
+      - PRD: pm/prd.md
+      - Epics & Stories: pm/epics-and-stories.md
       - Roadmap: pm/roadmap.md
       - Open Source Strategy: pm/open-source-strategy.md
       - Funding Draft (Prototype Fund): pm/funding-proposal.md
