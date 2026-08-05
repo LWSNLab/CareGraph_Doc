@@ -5,6 +5,10 @@ site_url: https://lwsnlab.github.io/CareGraph_Doc/
 repo_url: https://github.com/LWSNLab/CareGraph_Doc
 repo_name: LWSNLab/CareGraph_Doc
 
+# Story template lives in the repo for copying, but is not a rendered page.
+exclude_docs: |
+  pm/stories/_template.md
+
 copyright: >
   &copy; 2026 CareGraph (LWSNLab) —
   Documentation licensed under
@@ -46,7 +50,41 @@ nav:
   - API Specification: api/openapi-spec.md
   - Project Management:
       - PRD: pm/prd.md
-      - Epics & Stories: pm/epics-and-stories.md
+      - Epics & Stories:
+          - Overview: pm/stories/index.md
+          - 1 · Ingestion & ETL:
+              - Overview: pm/stories/epic-1-ingestion/index.md
+              - E1-S1 · GKV insurer list: pm/stories/epic-1-ingestion/e1-s1-gkv-insurer-list.md
+              - E1-S2 · Provider scrapers: pm/stories/epic-1-ingestion/e1-s2-provider-scrapers.md
+              - E1-S3 · Geocoding: pm/stories/epic-1-ingestion/e1-s3-geocoding.md
+              - E1-S4 · CareGraph-native loader: pm/stories/epic-1-ingestion/e1-s4-loader.md
+              - E1-S5 · Deduplication: pm/stories/epic-1-ingestion/e1-s5-deduplication.md
+          - 2 · Data & Search:
+              - Overview: pm/stories/epic-2-data-and-search/index.md
+              - E2-S1 · PostGIS schema: pm/stories/epic-2-data-and-search/e2-s1-postgis-schema.md
+              - E2-S2 · Typesense sync: pm/stories/epic-2-data-and-search/e2-s2-typesense-sync.md
+              - E2-S3 · Data validation: pm/stories/epic-2-data-and-search/e2-s3-data-validation.md
+          - 3 · API Gateway:
+              - Overview: pm/stories/epic-3-api-gateway/index.md
+              - E3-S1 · Radius endpoint: pm/stories/epic-3-api-gateway/e3-s1-radius-endpoint.md
+              - E3-S2 · Fuzzy search: pm/stories/epic-3-api-gateway/e3-s2-fuzzy-search.md
+              - E3-S3 · Entity lookup: pm/stories/epic-3-api-gateway/e3-s3-entity-lookup.md
+              - E3-S4 · Auth & rate limiting: pm/stories/epic-3-api-gateway/e3-s4-auth-rate-limiting.md
+              - E3-S5 · OpenAPI & docs: pm/stories/epic-3-api-gateway/e3-s5-openapi-docs.md
+          - 4 · Operations & CI/CD:
+              - Overview: pm/stories/epic-4-operations/index.md
+              - E4-S1 · Containerization: pm/stories/epic-4-operations/e4-s1-containerization.md
+              - E4-S2 · CI/CD: pm/stories/epic-4-operations/e4-s2-ci-cd.md
+              - E4-S3 · Observability: pm/stories/epic-4-operations/e4-s3-observability.md
+          - 5 · Open Source & Funding:
+              - Overview: pm/stories/epic-5-open-source/index.md
+              - E5-S1 · Repository & licensing: pm/stories/epic-5-open-source/e5-s1-repo-licensing.md
+              - E5-S2 · Governance & data quality: pm/stories/epic-5-open-source/e5-s2-governance.md
+              - E5-S3 · Funding applications: pm/stories/epic-5-open-source/e5-s3-funding.md
+          - 6 · Commercial / DaaS:
+              - Overview: pm/stories/epic-6-commercial/index.md
+              - E6-S1 · Tiered API access: pm/stories/epic-6-commercial/e6-s1-tiered-access.md
+              - E6-S2 · Managed dataset: pm/stories/epic-6-commercial/e6-s2-managed-dataset.md
       - Roadmap: pm/roadmap.md
       - Open Source Strategy: pm/open-source-strategy.md
       - Funding Draft (Prototype Fund): pm/funding-proposal.md
