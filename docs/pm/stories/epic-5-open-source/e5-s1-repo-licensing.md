@@ -39,6 +39,7 @@ Licenses are already in place (code AGPLv3, docs CC BY-SA 4.0). Remaining: commu
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

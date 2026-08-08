@@ -1,0 +1,30 @@
+version: 2
+
+# The docs repo ships no product code, but it does run GitHub Actions and pins
+# MkDocs dependencies — both are supply-chain surface worth keeping current.
+
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: "/"          # requirements.txt (mkdocs-material)
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "deps(docs)"
+    groups:
+      docs-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]

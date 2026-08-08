@@ -40,6 +40,7 @@ Handler + repository already stubbed in the impl repo (`internal/provider`); thi
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

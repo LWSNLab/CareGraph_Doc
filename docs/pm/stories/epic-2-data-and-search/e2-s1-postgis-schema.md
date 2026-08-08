@@ -40,6 +40,7 @@ The initial DDL is already drafted (`db/migrations/0001_init.sql`, auto-applied 
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 
