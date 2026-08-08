@@ -39,6 +39,7 @@ Builds directly on E3-S4 (auth & rate limiting): tiers are rate-limit policies a
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

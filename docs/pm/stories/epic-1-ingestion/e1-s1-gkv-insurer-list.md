@@ -41,6 +41,7 @@ Coordinate-based `pdfplumber` extraction (column x-edges derived from the header
 
 - [x] Acceptance criteria fulfilled
 - [x] Tests passing (66 tests: parser, address scraper, exporter — incl. an integration test against the official PDF)
+- [x] CI covers the new code (pipeline extended if needed)
 - [x] Documentation updated
 - [ ] Code reviewed
 

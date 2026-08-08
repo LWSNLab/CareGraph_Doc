@@ -58,8 +58,6 @@ Tag mapping, derived from the actual tag distribution in German OSM data:
 - No IK-Nummer, so `E1-S5` deduplication cannot use the strongest key for these records.
 - Precision was favoured over recall; the tightened rule dropped ~40% of raw candidates, nearly all of them false positives.
 
-**Result of the nationwide run:** 7,522 providers across all 16 federal states — 4,880 `pflegeheim_stationaer`, 2,579 `pflegedienst_ambulant`, 63 `pflegestuetzpunkt`; 100% with coordinates, 68% with a complete address. One region initially failed on a transient TLS error and succeeded on re-run — the run-level resilience behaved as designed (the other 15 regions were kept, the failure was reported and the exit code was non-zero).
-
 **Follow-ups, tracked separately:** coverage improvement via official open data ([E1-S7](e1-s7-official-open-data.md)) and IK enrichment ([E1-S6](e1-s6-ik-enrichment.md)).
 
 ## Dependencies
@@ -76,6 +74,7 @@ Tag mapping, derived from the actual tag distribution in German OSM data:
 
 - [x] Acceptance criteria fulfilled
 - [x] Tests passing (29 unit tests on the pure mapping logic; verified against live Overpass for Bremen/Hamburg)
+- [x] CI covers the new code (pipeline extended if needed)
 - [x] Documentation updated
 - [ ] Code reviewed
 

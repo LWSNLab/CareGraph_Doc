@@ -38,6 +38,7 @@ Builds on the existing [Funding](../../funding-proposal.md) draft and [Open Sour
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

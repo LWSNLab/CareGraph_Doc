@@ -39,6 +39,7 @@ Runs as a pipeline step after loading; can gate publication (fail the run on cri
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

@@ -39,6 +39,7 @@ Keep it proportionate to project size: a simple ADR folder and a couple of issue
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

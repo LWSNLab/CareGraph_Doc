@@ -40,6 +40,7 @@ Blocking on PLZ/city to keep pairwise comparisons cheap; fuzzy name/address matc
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

@@ -39,6 +39,7 @@ The compose stack + API Dockerfile are already scaffolded in the impl repo (infr
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

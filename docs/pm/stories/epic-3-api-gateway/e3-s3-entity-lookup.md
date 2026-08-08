@@ -39,6 +39,7 @@ Straightforward indexed lookup on `care_infrastructure.ik_nummer` (unique). Hand
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 

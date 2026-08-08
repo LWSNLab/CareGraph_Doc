@@ -41,6 +41,7 @@ Under `pipelines/load/`. The current exporter targets a standalone `krankenkasse
 
 - [ ] Acceptance criteria fulfilled
 - [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
 - [ ] Documentation updated
 - [ ] Code reviewed
 
