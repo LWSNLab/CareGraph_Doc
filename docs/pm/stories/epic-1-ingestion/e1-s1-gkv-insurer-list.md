@@ -40,7 +40,7 @@ Coordinate-based `pdfplumber` extraction (column x-edges derived from the header
 ## Definition of Done
 
 - [x] Acceptance criteria fulfilled
-- [ ] Tests passing (unit + integration where relevant)
+- [x] Tests passing (66 tests: parser, address scraper, exporter — incl. an integration test against the official PDF)
 - [x] Documentation updated
 - [ ] Code reviewed
 

@@ -1,1 +1,9 @@
 /.idea/
+
+# Python (scripts/import_stories.py)
+__pycache__/
+*.py[cod]
+.venv/
+
+# MkDocs build output
+/site/

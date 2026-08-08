@@ -59,6 +59,8 @@ nav:
               - E1-S3 · Geocoding: pm/stories/epic-1-ingestion/e1-s3-geocoding.md
               - E1-S4 · CareGraph-native loader: pm/stories/epic-1-ingestion/e1-s4-loader.md
               - E1-S5 · Deduplication: pm/stories/epic-1-ingestion/e1-s5-deduplication.md
+              - E1-S6 · IK-Nummer enrichment: pm/stories/epic-1-ingestion/e1-s6-ik-enrichment.md
+              - E1-S7 · Official open-data supplement: pm/stories/epic-1-ingestion/e1-s7-official-open-data.md
           - 2 · Data & Search:
               - Overview: pm/stories/epic-2-data-and-search/index.md
               - E2-S1 · PostGIS schema: pm/stories/epic-2-data-and-search/e2-s1-postgis-schema.md
