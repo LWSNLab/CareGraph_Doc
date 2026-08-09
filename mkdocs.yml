@@ -56,7 +56,7 @@ nav:
               - Overview: pm/stories/epic-1-ingestion/index.md
               - E1-S1 · GKV insurer list: pm/stories/epic-1-ingestion/e1-s1-gkv-insurer-list.md
               - E1-S2 · Provider scrapers: pm/stories/epic-1-ingestion/e1-s2-provider-scrapers.md
-              - E1-S3 · Geocoding: pm/stories/epic-1-ingestion/e1-s3-geocoding.md
+              - E1-S3 · Address backfill: pm/stories/epic-1-ingestion/e1-s3-geocoding.md
               - E1-S4 · CareGraph-native loader: pm/stories/epic-1-ingestion/e1-s4-loader.md
               - E1-S5 · Deduplication: pm/stories/epic-1-ingestion/e1-s5-deduplication.md
               - E1-S6 · IK-Nummer enrichment: pm/stories/epic-1-ingestion/e1-s6-ik-enrichment.md

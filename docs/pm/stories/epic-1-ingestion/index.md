@@ -7,7 +7,7 @@
 | :-- | :--: | :--: | :--: |
 | [E1-S1 — GKV insurer list](e1-s1-gkv-insurer-list.md) | 5 | High | ✅ Done |
 | [E1-S2 — Provider scrapers](e1-s2-provider-scrapers.md) | 8 | High | ✅ Done (pending review) |
-| [E1-S3 — Geocoding](e1-s3-geocoding.md) | 3 | High | ⏳ Planned |
+| [E1-S3 — Address backfill (reverse geocoding)](e1-s3-geocoding.md) | 3 | Medium | ⏳ Planned |
 | [E1-S4 — CareGraph-native loader](e1-s4-loader.md) | 5 | High | ✅ Done (pending review) |
 | [E1-S5 — Deduplication](e1-s5-deduplication.md) | 5 | Medium | ⏳ Planned |
 | [E1-S6 — IK-Nummer enrichment](e1-s6-ik-enrichment.md) | 3 | Medium | ✅ Done (pending review) |

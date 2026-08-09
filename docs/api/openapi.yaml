@@ -38,6 +38,8 @@ paths:
           schema:
             type: number
             format: float
+            minimum: -90
+            maximum: 90
             example: 48.7182
         - name: lng
           in: query
@@ -46,6 +48,8 @@ paths:
           schema:
             type: number
             format: float
+            minimum: -180
+            maximum: 180
             example: 10.7781
         - name: radius_km
           in: query
@@ -54,6 +58,8 @@ paths:
           schema:
             type: number
             format: float
+            exclusiveMinimum: 0
+            maximum: 100.0
             default: 10.0
             example: 15.0
         - name: type
@@ -68,8 +74,9 @@ paths:
           description: Maximum number of results (default 20, max 100)
           schema:
             type: integer
-            default: 20
+            minimum: 1
             maximum: 100
+            default: 20
 
       responses:
         '200':
