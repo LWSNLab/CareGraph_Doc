@@ -76,7 +76,7 @@ Tag mapping, derived from the actual tag distribution in German OSM data:
 - [x] Tests passing (29 unit tests on the pure mapping logic; verified against live Overpass for Bremen/Hamburg)
 - [x] CI covers the new code (pipeline extended if needed)
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 
