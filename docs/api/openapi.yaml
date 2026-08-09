@@ -121,8 +121,16 @@ paths:
 
   /infrastructure/{ik_nummer}:
     get:
-      summary: Get provider by Institution Code (IK Number)
-      description: Retrieves a single infrastructure entity using its unique 9-digit German Institutionskennzeichen.
+      summary: Get an institution by its Institution Code (IK Number)
+      description: |
+        Retrieves a single infrastructure entity by its 9-digit German
+        Institutionskennzeichen.
+
+        **Coverage caveat:** every Leistungserbringer has an IK, but only the
+        statutory insurers' numbers are available from public sources today.
+        Care providers (Pflegedienste, Pflegeheime, Pflegestützpunkte) carry
+        `ik_nummer: null` and cannot be addressed through this endpoint yet —
+        use `/infrastructure/search` or `/infrastructure/near` for those.
       operationId: getProviderByIK
       tags:
         - Infrastructure

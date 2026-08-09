@@ -28,7 +28,7 @@ This page is the human-readable summary; `openapi.yaml` always wins if the two e
 | :--- | :--- | :--- | :---: |
 | `GET` | `/infrastructure/near` | Spatial radius search via PostGIS `ST_DWithin` | ✅ |
 | `GET` | `/infrastructure/search` | In-memory fuzzy text search via Typesense (C++) | ✅ |
-| `GET` | `/infrastructure/{ik_nummer}` | Fetch a single provider by 9-digit IK number | ✅ |
+| `GET` | `/infrastructure/{ik_nummer}` | Fetch a single institution by 9-digit IK number ¹ | ✅ |
 | `GET` | `/healthz` | Liveness & readiness probe | ❌ |
 
 ### `GET /infrastructure/near`
@@ -51,6 +51,11 @@ This page is the human-readable summary; `openapi.yaml` always wins if the two e
 ### `GET /infrastructure/{ik_nummer}`
 
 Path parameter `ik_nummer` — the official 9-digit Institutionskennzeichen (`^[0-9]{9}$`).
+
+> ¹ **Only insurers are addressable today.** Every Leistungserbringer has an IK,
+> but no public source publishes those of care providers, so their `ik_nummer`
+> is `null`. Reach them via `/infrastructure/near` or `/infrastructure/search`.
+> Tracked in the backlog as *Provider IK numbers*.
 
 ---
 
