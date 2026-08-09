@@ -5,7 +5,7 @@
 | **Epic**         | E2 — Data Model & Search |
 | **Story Points** | 3                        |
 | **Priority**     | High                     |
-| **Status**       | ⏳ Planned               |
+| **Status**       | ✅ Done (pending review) |
 
 > ← [Epic 2](index.md) · [Backlog](../index.md)
 
@@ -19,13 +19,17 @@ Deploy and version CareGraph's PostGIS schema and indexes through a repeatable m
 
 ## Acceptance Criteria
 
-- [ ] `care_infrastructure` + `bundeslaender` + junction + `zusatzbeitrag_historie` created.
-- [ ] GIST (spatial), GIN (JSONB), and compound indexes present.
-- [ ] Migration is idempotent and version-controlled.
+- [x] `care_infrastructure` + `bundeslaender` + junction + `zusatzbeitrag_historie` created.
+- [x] GIST (spatial), GIN (JSONB), and compound indexes present.
+- [x] Migration is idempotent and version-controlled.
 
 ## Technical Notes
 
-The initial DDL is already drafted (`db/migrations/0001_init.sql`, auto-applied via the Postgres image's `initdb.d`). This story adds an explicit migration runner and applies it in CI, rather than relying only on first-boot init.
+**Completed as a by-product of [E1-S4](../epic-1-ingestion/e1-s4-loader.md)**, which could not load anything until the schema was real.
+
+Three migrations exist: `0001_init` (tables, enum, indexes), `0002_loader_prerequisites` (nullable address columns, `source_id` upsert key) and `0003_least_privilege_roles`. `make migrate` applies them all in order, and CI runs the same sequence against a PostGIS service container — so the from-scratch path is exercised on every push, not just on a developer's first boot.
+
+Verified in the running database: GIST on `location`, GIN on `details`, compound B-Tree on `(type, plz)`, plus unique indexes on `source_id` and `ik_nummer`.
 
 ## Dependencies
 
@@ -38,10 +42,10 @@ The initial DDL is already drafted (`db/migrations/0001_init.sql`, auto-applied 
 
 ## Definition of Done
 
-- [ ] Acceptance criteria fulfilled
-- [ ] Tests passing (unit + integration where relevant)
-- [ ] CI covers the new code (pipeline extended if needed)
-- [ ] Documentation updated
+- [x] Acceptance criteria fulfilled
+- [x] Tests passing (loader integration tests exercise the schema)
+- [x] CI covers the new code (migrations applied against a PostGIS service container)
+- [x] Documentation updated
 - [ ] Code reviewed
 
 ## References

@@ -20,6 +20,12 @@ The open-source core enables municipalities, researchers, healthcare providers, 
 
 The core CareGraph codebase—including the Go API Gateway, Python ingestion pipelines, database schemas, and infrastructure tooling—is licensed under the **GNU Affero General Public License v3.0 (AGPLv3).**
 
+> **Not yet published.** The repositories are still private while the dataset's
+> licence terms and the contributor groundwork are settled — the reasoning is on
+> the [start page](../index.md) and tracked as
+> [E5-S1](stories/epic-5-open-source/e5-s1-repo-licensing.md). The licence choice
+> itself is not in question.
+
 ## Why AGPLv3?
 
 ### Prevents Closed SaaS Forks

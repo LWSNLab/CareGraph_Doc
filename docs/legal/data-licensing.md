@@ -66,8 +66,14 @@ This is the same model as OpenStreetMap-based commercial services: the data is o
 ## 6. Open Questions (for counsel)
 
 1. Does storing OSM/Nominatim geocodes at scale trigger ODbL share-alike on the *entire* CareGraph dataset, or can geocodes be isolated?
-2. Which third-party provider directories qualify as protected databases, and where is the "substantial part" threshold?
-3. Is a `CC BY` vs `ODbL` output license compatible with all upstream obligations?
-4. GDPR: sole traders (*Einzelunternehmen*) as care providers may be natural persons — is any of the published contact data personal data under Art. 4 GDPR, and what is the lawful basis (Art. 6(1)(f))?
+2. Is a `CC BY` vs `ODbL` output licence compatible with all upstream obligations?
+3. GDPR: sole traders (*Einzelunternehmen*) as care providers may be natural persons — is any of the published contact data personal data under Art. 4 GDPR, and what is the lawful basis (Art. 6(1)(f))?
+4. For each third-party directory we might use: **who holds the rights, and what terms would they attach to a licensed export?**
+
+> Note the framing of the last point. Where a directory is protected under the
+> *sui generis* right, the question is not how much of it may be taken without
+> asking — it is whom to ask. Our practice is to obtain permission and honour
+> the terms that come with it, which is why the insurer portals are not scraped
+> even where a narrow reading of their `robots.txt` might allow it.
 
 > These are tracked deliberately as open items. Resolving them **before** the commercial launch (not after) is part of the Phase 4 funding/legal milestone.

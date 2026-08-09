@@ -7,3 +7,7 @@ __pycache__/
 
 # MkDocs build output
 /site/
+
+# Working material that must not ship with the public docs repo
+# (negotiating drafts, contact details, internal notes)
+/internal/

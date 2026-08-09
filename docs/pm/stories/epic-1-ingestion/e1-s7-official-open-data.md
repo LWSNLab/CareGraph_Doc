@@ -45,6 +45,9 @@ Verified during exploration:
 
 1. **Licences are not populated in the API search response** (`license_id` was empty for every sampled dataset). They must be read per dataset — from DCAT-AP.de fields or the publisher — *before* ingesting. Most administrative data is *Datenlizenz Deutschland – Namensnennung 2.0*, which is permissive but requires attribution. This is a legal precondition, not a formality; see [Data Sources & Licensing](../../../legal/data-licensing.md).
 2. **Not every hit is a facility list.** The Statistisches Bundesamt datasets are most likely *aggregated statistics* (counts per region), which do not fit `care_infrastructure`. Each candidate must be inspected before an adapter is written.
+3. **Resource URLs rot.** Of four sampled downloads, two were unusable — one an ArcGIS directory page, one answering *"Subscription is canceled"*. Adapters must fail individually and visibly, never silently produce zero rows.
+
+**This source does not carry IK numbers.** Sampled datasets (OpenData.HRO, Open.NRW, open.bydata) provide coordinates, address, operator, capacity and contact details — but no `Institutionskennzeichen` column. Provider IKs need their own route, tracked in [E1-S8](e1-s8-provider-ik.md); this story should be valued for coverage and address quality instead.
 
 **Design.** One adapter per publisher behind a common interface, mirroring the `OSMProviderScraper` shape (fetch → map to `ProviderRecord` → report). The mapping is the per-publisher cost: schemas, column names and provider-type vocabularies differ between authorities.
 

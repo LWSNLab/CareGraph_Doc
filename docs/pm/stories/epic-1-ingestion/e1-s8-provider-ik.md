@@ -1,0 +1,75 @@
+# E1-S8 — Provider IK numbers (data-sharing route)
+
+|                  |                          |
+| :--------------- | :----------------------- |
+| **Epic**         | E1 — Ingestion & ETL     |
+| **Story Points** | 5                        |
+| **Priority**     | High                     |
+| **Status**       | ⏳ Planned               |
+
+> ← [Epic 1](index.md) · [Backlog](../index.md)
+
+## User Story
+
+As a **B2B integrator**, I want care providers to carry their Institutionskennzeichen, so that I can match CareGraph records against my own systems and address them through the API.
+
+## Description
+
+Every Leistungserbringer billing with German social insurance holds an IK — it is *the* identifier the sector matches on. [E1-S6](e1-s6-ik-enrichment.md) resolved them for the statutory insurers, where a public source exists. For care providers no such source does, so all 7,522 of them carry `ik_nummer: null`.
+
+This story is mostly **not a coding task**: the work is obtaining lawful access to the data, then a comparatively small ingestion step.
+
+## Acceptance Criteria
+
+- [ ] A lawful access route to provider IKs is established (agreement, official export, or a source that turns out to publish them).
+- [ ] IKs are loaded into `care_infrastructure.ik_nummer` for the covered providers.
+- [ ] Providers are rekeyed from `osm:…` to `ik:…` without creating duplicates, as insurers were.
+- [ ] Coverage and provenance are reported per run; gaps stay visible.
+- [ ] `GET /infrastructure/{ik_nummer}` resolves providers, and its documented caveat is removed.
+
+## Technical Notes
+
+**Why this is blocked on access, not on code.** Checked and ruled out:
+
+| Source | Result |
+| :-- | :-- |
+| Kostenträgerdateien (4 sectors) | list *Kostenträger* (payers), not Leistungserbringer |
+| Schlüsselverzeichnis 8a | insurers only |
+| GovData / municipal open data | sampled datasets carry coordinates, address, operator, capacity — **no IK column** |
+| Pflegelotse / AOK Pflegenavigator | hold the data, but `robots.txt` disallows the pages and they are protected databases (see [E1-S2](e1-s2-provider-scrapers.md)) |
+| **ARGE·IK IK-/Adress-Suche** (the body that *issues* IKs) | states it plainly: *"Die Daten der Leistungserbringer sind in der Datenbank nicht enthalten."* Its address pool is payers only — KV/RV/UV-Träger, Sozialhilfeträger, Versorgungs- und Gesundheitsämter, Pflegekassen. |
+
+The ARGE·IK finding is the most decisive of these: the organisation that assigns every IK deliberately does not publish those of Leistungserbringer. Provider IKs are therefore not "public data that merely needs collecting" — they are not published anywhere.
+
+**The route is to ask the bodies that hold the data — not ARGE·IK.** ARGE·IK issues the numbers but excludes providers from its published database, so an enquiry there concerns a product that does not exist. The pairing of provider and IK sits with the **DatenClearingStelle Pflege (DCS)** and the **Landesverbände der Pflegekassen**, who operate the § 7 SGB XI transparency portals, coordinated by the GKV-Spitzenverband.
+
+We would like to work **with** these bodies rather than around them. The § 7 SGB XI data is legally intended for publication, and the portals exist to discharge that transparency duty; a machine-readable export would serve the same purpose for municipalities, researchers and application developers who today cannot use the data programmatically. Corrections we find during processing — outdated addresses, duplicates — we would gladly return.
+
+Whether and on what terms such an export is possible is theirs to decide, and any conditions attached would be adopted in full. A draft enquiry is kept outside the published documentation (`internal/`).
+
+⚠️ **"It is already public" is not a licence.** Individual facts are free, but a compiled directory can be protected under the *sui generis* database right (§§ 87a ff. UrhG), and aggregating a substantial part centrally is precisely the case that right addresses. The request should therefore ask for **permission and terms**, not assert that none are needed — see [Data Sources & Licensing](../../../legal/data-licensing.md).
+
+**Once access exists, the loading is small.** The rekeying mechanism already exists from E1-S6 (`source_id` rewritten in place before the upsert), and `ik_nummer` is already modelled and indexed as unique. The main new work is matching provider records to IK records, which will be harder than for insurers: 7,522 rows, no clean directory, and names far less standardised. Expect [E1-S5](e1-s5-deduplication.md)-style address and name similarity, with the same rule as E1-S6 — **refuse rather than guess**, because a wrong IK is silent.
+
+## Dependencies
+
+- **Depends on:** E1-S2 (the provider records to enrich)
+- **Blocks:** the IK lookup endpoint for providers; materially improves [E1-S5](e1-s5-deduplication.md), which currently has no strong key for providers
+
+## Risks
+
+- **Not fully in our control.** A data-sharing request can be refused or take months; the story should not block Phase 1 from completing.
+- **Licence terms may come attached** to a negotiated export and could constrain redistribution — exactly the question raised in [Data Sources & Licensing](../../../legal/data-licensing.md). Clarify before ingesting, not after.
+- **Partial coverage is likely** even with access; the API caveat may need to become "most providers" rather than disappear.
+
+## Definition of Done
+
+- [ ] Acceptance criteria fulfilled
+- [ ] Tests passing (unit + integration where relevant)
+- [ ] CI covers the new code (pipeline extended if needed)
+- [ ] Documentation updated
+- [ ] Code reviewed
+
+## References
+
+- [E1-S6 — IK enrichment (insurers)](e1-s6-ik-enrichment.md) · [Data Sources & Licensing](../../../legal/data-licensing.md) · [API Specification](../../../api/openapi-spec.md)
