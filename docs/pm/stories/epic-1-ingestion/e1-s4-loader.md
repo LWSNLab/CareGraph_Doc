@@ -23,7 +23,7 @@ This is the step that makes the **database the source of truth**. Ingestion runs
 
 - [x] Insurers mapped to `care_infrastructure` (`type='krankenkasse'`) + `krankenkasse_bundesland`. *(Providers too.)*
 - [x] Contribution rates written to `zusatzbeitrag_historie` (append, no overwrite).
-- [x] Idempotent upsert keyed on IK-Nummer / a stable key. *(`source_id`; IK once [E1-S6](e1-s6-ik-enrichment.md) lands.)*
+- [x] Idempotent upsert keyed on IK-Nummer / a stable key. *(`source_id`. The IK key from [E1-S6](e1-s6-ik-enrichment.md) initially broke this — see the section below.)*
 - [x] Runs against Postgres via a write-scoped role. *(`caregraph_ingest`; the gateway gets read-only `caregraph_api` — migration `0003`.)*
 
 ## Technical Notes
@@ -79,9 +79,67 @@ Insurers carry no coordinates, so every coordinate parameter was `NULL` and Post
 - **Depends on:** E1-S1 (parsed insurers), E1-S2 (providers), E2-S1 (schema)
 - **Blocks:** E3 (the API serves from `care_infrastructure`)
 
+## Fixed after the fact — insurer key flapping (2026-08-10)
+
+The IK-based key introduced by [E1-S6](e1-s6-ik-enrichment.md) turned out to
+break idempotency, the one property this story exists to guarantee. Recorded
+here because the mechanism is worth remembering, not just the fix.
+
+**What happened.** `source_id` was derived directly from the enrichment result:
+`ik:<ik>` when an IK resolved, `gkv:<name>` when it did not. IK resolution is a
+network step. When it degraded, the key changed, the upsert missed, and a second
+row was inserted. Two runs on 2026-08-10 demonstrated it:
+
+| Run | Result |
+| :-- | :-- |
+| `--no-ik` | `inserted=91 updated=1` → **91 duplicate insurers** |
+| IK on, fallback source unreachable (75/92 resolved) | `inserted=16 updated=76` → **16 duplicates** |
+
+Both reported `skipped=0` and **exited 0**. Nothing warned. The duplicates were
+noticed only because someone counted rows. On a monthly cron this would have
+passed unobserved, and `zusatzbeitrag_historie` rows would have attached to the
+duplicate — splitting each affected insurer's time series in two.
+
+**A second defect hid behind the first.** `ik_nummer = EXCLUDED.ik_nummer` means
+a run without an IK blanks a previously resolved one. It never manifested,
+because such a run inserted a new row rather than updating the existing one.
+Fixing the key alone would have exposed it, so both were fixed together.
+
+**The fix, three parts.**
+
+1. **The key follows the data, not the enrichment.** `_resolve_insurer_key`
+   prefers `ik:<ik>` but only when nothing better is stored: a row already in
+   the table keeps its key unless this run can *upgrade* it to an IK. Downgrading
+   an IK key back to a name key never happens.
+2. **`_PRESERVE_IF_NULL`** wraps such columns in
+   `COALESCE(EXCLUDED.col, care_infrastructure.col)`, so a failed enrichment can
+   no longer erase a good value.
+3. **A regression guard before any write.** `run_load` compares the resolved IK
+   count against `count_insurers_with_ik()` and aborts with **exit 2**, writing
+   nothing, when the run resolved fewer than the database already holds.
+   `--allow-ik-regression` overrides it for a drop that is genuinely real.
+
+`LoadReport` gained `key_preserved`, reported and logged at WARNING: the data is
+intact, but the enrichment was thinner than the database and a scheduler should
+notice.
+
+**Verified against the exact failing runs.** `--no-ik` now yields
+`inserted=0 updated=92 key_preserved=91` with all 91 IKs intact and no
+duplicates. The degraded IK run aborts with exit 2 and leaves the table
+untouched. Six integration tests cover it, including that the contribution-rate
+time series stays attached to one row.
+
+**Root cause of the outage, for the record.**
+`https://www.gkv-datenaustausch.de` validates against the macOS system trust
+store but fails against the certifi bundle `requests` uses
+(`unable to get local issuer certificate`) — an incomplete certificate chain
+server-side. Tracked separately; it must **not** be "fixed" by disabling
+verification on a request to a health-data authority.
+
 ## Risks
 
-- **Insurers are keyed on `gkv:<name>` until [E1-S6](e1-s6-ik-enrichment.md) lands.** A renamed insurer would appear as a new row; the IK-based key removes that.
+- **A renamed insurer still appears as a new row** when it has no IK. The IK key
+  handles renames; the name key cannot. Left to [E1-S5](e1-s5-deduplication.md).
 - **Owner credentials are still needed for migrations.** Only the two runtime roles are least-privilege; schema changes run as the owner, as they must.
 - Per-row execution is fine at this size (7.5k in 7 s); a `COPY`-based path would be the lever if the dataset grows by an order of magnitude.
 

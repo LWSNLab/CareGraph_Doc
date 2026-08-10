@@ -10,7 +10,7 @@
 | [E3-S3 — Entity lookup](e3-s3-entity-lookup.md) | 2 | High | ✅ Done (pending review) |
 | [E3-S4 — Auth & rate limiting](e3-s4-auth-rate-limiting.md) | 5 | High | ⏳ Planned |
 | [E3-S5 — OpenAPI & docs](e3-s5-openapi-docs.md) | 2 | Medium | ⏳ Planned |
-| [E3-S6 — Uniform error contract & request correlation](e3-s6-error-contract.md) | 3 | Medium | ⏳ Planned |
+| [E3-S6 — Uniform error contract & request correlation](e3-s6-error-contract.md) | 3 | Medium | ✅ Done (pending review) |
 
 _Story points & priorities are initial drafts — adjust as needed._
 
@@ -23,4 +23,5 @@ _Story points & priorities are initial drafts — adjust as needed._
 | `GET /v1/infrastructure/search` | `501` until E3-S2 |
 | `GET /v1/infrastructure/{ik_nummer}` | ✅ live — resolves 91 insurers; every provider is `404` until E1-S8 |
 | `X-API-Key` | presence-only check until E3-S4 — **not** authentication |
-| Error handling | causes logged, never leaked; `504` on timeout, `499` on client disconnect. Unknown routes and panics still break the JSON shape → E3-S6 |
+| Error contract | ✅ one JSON shape for every `4xx`/`5xx` incl. unknown routes, `405` and panics; stable `code` field; causes logged, never leaked |
+| `X-Request-Id` | ✅ on every response, echoed from the client when safe, in error bodies and log records |
