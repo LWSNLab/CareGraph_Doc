@@ -36,7 +36,7 @@ Roughly **2,300 of 7,522 providers (30%)** carry a name and coordinates but no s
 
 Under `pipelines/geocoding/`.
 
-**Out of scope: forward geocoding the insurers.** All 92 have an address but no `location`, which looks like a gap and is not one. Per the [data schema](../../../architecture/data-schema.md), a statutory insurer is not a point provider: what matters is the **region it is open in**, modelled through `krankenkasse_bundesland`. A radius search around a head office would answer a question nobody asks. Adding those coordinates would cost requests and invite misuse of the data.
+**Out of scope: forward geocoding the insurers.** All 93 have an address but no `location`, which looks like a gap and is not one. Per the [data schema](../../../architecture/data-schema.md), a statutory insurer is not a point provider: what matters is the **region it is open in**, modelled through `krankenkasse_bundesland`. A radius search around a head office would answer a question nobody asks. Adding those coordinates would cost requests and invite misuse of the data.
 
 **Quality caveat, worth stating up front.** These coordinates come *from* OSM, so asking Nominatim about them is partly circular: where the facility object carries no `addr:*` tags, the answer describes the enclosing building or street — a good approximation of *where* it is, not an authoritative statement of its postal address. Derived values must therefore be flagged, so that:
 

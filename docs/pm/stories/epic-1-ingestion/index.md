@@ -20,10 +20,10 @@ _Story points & priorities are initial drafts — adjust as needed._
 
 | | |
 | :-- | :-- |
-| Insurers (E1-S1) | 92 rows — 91 with an official Kassensitz-IK. ⚠️ **The real count is 93:** one row holds two merged insurers (see below) |
+| Insurers (E1-S1) | **93** — 92 with an official Kassensitz-IK; only EY BKK appears in no source |
 | Providers: IK coverage | **0 of 7,522** — no public source exists (→ E1-S8) |
 | Providers (E1-S2) | 7,522 across 16/16 states — 100% coordinates, 68% full address |
-| Loaded into Postgres | ✅ **7,614 rows** — 7,522 providers + 92 insurers, 185 state links, 92 history rows |
+| Loaded into Postgres | ✅ **7,615 rows** — 7,522 providers + 93 insurers, 185 state links, 93 history rows |
 | Website URLs | ✅ absolute everywhere — 103 scheme-less values normalised (migration `0004`), scheme measured per host rather than guessed |
 
 ✅ **Resolved in E1-S4:** the `plz`/`ort` `NOT NULL` conflict and the missing upsert key are fixed by migration `0002_loader_prerequisites.sql` (columns nullable, `source_id` added).
@@ -32,9 +32,19 @@ _Story points & priorities are initial drafts — adjust as needed._
 fails. It had silently produced duplicate insurers on two observed runs — details
 and verification in [E1-S4](e1-s4-loader.md#fixed-after-the-fact-insurer-key-flapping-2026-08-10).
 
-### ⚠️ Open defects
+✅ **Fixed 2026-08-10:** two insurers were merged into a single row — details in
+[E1-S1](e1-s1-gkv-insurer-list.md#fixed-after-the-fact-two-insurers-in-one-row-2026-08-10).
+The insurer count changed from 92 to **93** as a result, and IK coverage improved
+from 91/92 to **92/93**.
 
-| Defect | Impact |
-| :-- | :-- |
-| **Two insurers merged into one row** — `SKD BKK` + `SVLFG`, name *and* website concatenated (`skd-bkk.dewww.svlfg.de`). Likely the parser's "a line without a `%` value is a continuation" heuristic. | The insurer count above is 92 but should be **93**, and SVLFG's IK was never looked up. Every "92" in these docs inherits the error. |
-| **IK fallback sources unreachable** — `www.gkv-datenaustausch.de` serves a certificate chain that validates against the macOS system trust store but not against the certifi bundle `requests` uses. | IK coverage drops to 75/92 on a fresh resolve. The loader now refuses to write in that state (exit 2) instead of corrupting data. Must **not** be worked around by disabling certificate verification. |
+✅ **Fixed 2026-08-10:** the IK sources are reachable again — 3/3 sources, 1,241
+directory entries, coverage back to **92/93**. The cause was *not* a broken
+server: a TLS-inspecting proxy on the development machine re-signed those
+connections with a root certifi cannot know about. Verification now goes through
+the OS trust store, still fully enabled —
+[details and the corrected diagnosis](e1-s6-ik-enrichment.md#resolved-the-sources-were-never-broken-2026-08-10).
+
+✅ **Fixed 2026-08-10:** the scraper no longer retries every host with
+certificate verification disabled. It turned out **no host needs it at all**, so
+the allowlist ships empty and a certificate error is now a real error —
+[details in E1-S1](e1-s1-gkv-insurer-list.md#tls-downgrades-are-now-the-exception-not-the-retry).

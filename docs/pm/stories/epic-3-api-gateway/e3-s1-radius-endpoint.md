@@ -63,7 +63,7 @@ arguments. Transposing `lat` and `lng` stays syntactically valid and surfaces
 only as wrong results, which is the single most common defect in this kind of
 endpoint.
 
-Rows with a `NULL` location are excluded — relevant because all 92 insurers
+Rows with a `NULL` location are excluded — relevant because all 93 insurers
 have no coordinates by design (see [E1-S3](../epic-1-ingestion/e1-s3-geocoding.md)),
 so `type=krankenkasse` correctly returns an empty set here.
 
