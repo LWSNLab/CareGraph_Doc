@@ -24,10 +24,10 @@
 | :-- | :--: | :--: | :--: | :-- |
 | [E1 — Ingestion & ETL](epic-1-ingestion/index.md) | 8 | 39 | 4 / 4 / 0 | 🚧 (4 ✅) |
 | [E2 — Data Model & Search](epic-2-data-and-search/index.md) | 3 | 11 | 1 / 2 / 0 | 🚧 (1 ✅) |
-| [E3 — Public API Gateway](epic-3-api-gateway/index.md) | 5 | 19 | 3 / 2 / 0 | 🚧 (1 ✅) |
+| [E3 — Public API Gateway](epic-3-api-gateway/index.md) | 6 | 22 | 3 / 3 / 0 | 🚧 (2 ✅) |
 | [E4 — Operations & CI/CD](epic-4-operations/index.md) | 4 | 12 | 1 / 2 / 1 | 🚧 (2 ✅) |
 | [E5 — Open Source & Funding](epic-5-open-source/index.md) | 3 | 8 | 0 / 2 / 1 | ⏳ |
 | [E6 — Commercial / DaaS](epic-6-commercial/index.md) | 2 | 13 | 0 / 0 / 2 | ⏳ |
-| **Total** | **25** | **102** | **9 / 12 / 4** | **8 done · 17 planned** |
+| **Total** | **26** | **105** | **9 / 13 / 4** | **9 done · 17 planned** |
 
 _Story points & priorities are initial drafts — adjust as the backlog is refined._

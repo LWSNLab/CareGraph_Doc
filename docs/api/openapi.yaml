@@ -91,6 +91,8 @@ paths:
           $ref: '#/components/responses/401Unauthorized'
         '429':
           $ref: '#/components/responses/429TooManyRequests'
+        '504':
+          $ref: '#/components/responses/504GatewayTimeout'
 
   /infrastructure/search:
     get:
@@ -158,8 +160,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CareProvider'
+        '400':
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
         '404':
-          description: Provider not found
+          description: |
+            No institution carries this IK number. Distinct from `400`: the
+            number is well formed, it simply is not in the dataset.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "No institution with this IK number"
+        '429':
+          $ref: '#/components/responses/429TooManyRequests'
+        '504':
+          $ref: '#/components/responses/504GatewayTimeout'
 
   /healthz:
     get:
@@ -283,7 +303,10 @@ components:
 
   responses:
     400BadRequest:
-      description: Invalid query parameters
+      description: |
+        A parameter is missing, malformed or out of range. The message names the
+        offending parameter. An unparseable optional parameter is rejected rather
+        than replaced by its default.
       content:
         application/json:
           schema:
@@ -291,7 +314,7 @@ components:
             properties:
               error:
                 type: string
-                example: "Invalid latitude or longitude value"
+                example: "parameter 'lat' must be between -90 and 90"
     401Unauthorized:
       description: Missing or invalid API Key
       content:
@@ -312,3 +335,15 @@ components:
               error:
                 type: string
                 example: "Rate limit exceeded. Try again in 60 seconds."
+    504GatewayTimeout:
+      description: |
+        The database query exceeded the server-side timeout. Retryable — it
+        points at the datastore, not at the request.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "the query took too long, please retry"

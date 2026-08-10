@@ -74,6 +74,7 @@ nav:
               - E3-S3 · Entity lookup: pm/stories/epic-3-api-gateway/e3-s3-entity-lookup.md
               - E3-S4 · Auth & rate limiting: pm/stories/epic-3-api-gateway/e3-s4-auth-rate-limiting.md
               - E3-S5 · OpenAPI & docs: pm/stories/epic-3-api-gateway/e3-s5-openapi-docs.md
+              - E3-S6 · Error contract: pm/stories/epic-3-api-gateway/e3-s6-error-contract.md
           - 4 · Operations & CI/CD:
               - Overview: pm/stories/epic-4-operations/index.md
               - E4-S1 · Containerization: pm/stories/epic-4-operations/e4-s1-containerization.md
