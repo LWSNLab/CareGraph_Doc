@@ -97,4 +97,46 @@ Path parameter `ik_nummer` — the official 9-digit Institutionskennzeichen (`^[
 - **Validation:** malformed coordinates or parameters → `400`.
 - **Rate limiting:** exceeding your tier → `429` (see [Security](../architecture/security.md#2-api-gateway-security)).
 
-Error bodies follow `{ "error": "<message>" }`. Full response schemas are in [`openapi.yaml`](openapi.yaml).
+### One error shape, everywhere
+
+Every `4xx` and `5xx` uses the same body — including the responses the framework
+generates rather than a handler, such as an unknown path, a wrong method or a
+panic. You can parse any failure the same way:
+
+```json
+{
+  "error": "parameter 'lat' must be between -90 and 90",
+  "code": "invalid_parameter",
+  "request_id": "0dfba0529a78773f16320ab786c125f9"
+}
+```
+
+**Branch on `code`, not on `error`.** The message is written for humans and may
+be reworded; the code will not change.
+
+| `code` | Status | Meaning |
+| :-- | :--: | :-- |
+| `invalid_parameter` | `400` | Missing, malformed or out-of-range parameter. The message names it. |
+| `unauthorized` | `401` | Missing or invalid API key. |
+| `not_found` | `404` | No such resource — or no such endpoint. |
+| `method_not_allowed` | `405` | Path exists, method does not. `Allow` lists what does. |
+| `rate_limited` | `429` | Tier limit exceeded. |
+| `not_implemented` | `501` | Endpoint is in this spec but not live yet. |
+| `timeout` | `504` | Server-side query timeout. Retryable. |
+| `internal` | `500` | Unexpected failure. The cause is in the server log, never in the response. |
+
+An **unparseable optional parameter is rejected, not defaulted.** `radius_km=abc`
+returns `400` rather than silently searching 10 km — otherwise you would get
+results that look authoritative while answering a different question.
+
+### Request correlation
+
+Every response carries an **`X-Request-Id`** header, and every error body repeats
+it as `request_id`. It is the join key to the server's logs.
+
+Send your own `X-Request-Id` to stitch our logs to yours. It is echoed back when
+it is at most 64 characters of `A–Z a–z 0–9 . _ -`, and replaced by a generated
+id otherwise. When reporting a problem, quote the id — it is the difference
+between "a request failed" and a specific log record.
+
+Full response schemas are in [`openapi.yaml`](openapi.yaml).

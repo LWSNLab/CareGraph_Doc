@@ -5,7 +5,12 @@
 | **Epic**         | E3 — Public API Gateway |
 | **Story Points** | 3                      |
 | **Priority**     | Medium                 |
-| **Status**       | ⏳ Planned             |
+| **Status**       | ✅ Done (pending review) |
+
+> **Sequencing.** Pulled ahead of [E3-S4](e3-s4-auth-rate-limiting.md) despite the
+> lower priority: E3-S4 introduces `401` and `429` bodies, and those should be
+> written once, in the shape defined here, rather than written and then migrated.
+> Priority describes importance; this is an ordering constraint.
 
 > ← [Epic 3](index.md) · [Backlog](../index.md)
 
@@ -40,35 +45,76 @@ integrator hits in the first hour and remembers.
 
 ## Acceptance Criteria
 
-- [ ] Unknown routes and unsupported methods return the documented JSON error
+- [x] Unknown routes and unsupported methods return the documented JSON error
       shape; method mismatch is `405` with `Allow`, not `404`.
-- [ ] A panic is logged with its stack and answered in the same error shape as
+- [x] A panic is logged with its stack and answered in the same error shape as
       every other `5xx` — never an empty body.
-- [ ] Every response carries `X-Request-Id`: taken from the request when the
+- [x] Every response carries `X-Request-Id`: taken from the request when the
       client supplies one, generated otherwise, echoed in the header, included
       in error bodies and attached to every log record for that request.
-- [ ] Error bodies carry a stable `code` (e.g. `invalid_parameter`, `not_found`,
+- [x] Error bodies carry a stable `code` (e.g. `invalid_parameter`, `not_found`,
       `timeout`, `internal`) next to the human-readable `error`.
-- [ ] A request-scoped timeout bounds the whole request, not just the single
+- [x] A request-scoped timeout bounds the whole request, not just the single
       query that `queryTimeout` already covers.
-- [ ] `openapi.yaml` defines one shared `Error` schema, and every endpoint
+- [x] `openapi.yaml` defines one shared `Error` schema, and every endpoint
       references it for `4xx`/`5xx`.
 
 ## Technical Notes
 
-Middleware in `internal/infrastructure` (or a new `internal/httpx`), applied in
-`cmd/api/main.go` ahead of the route groups: `gin.NoRoute`, `gin.NoMethod` with
-`HandleMethodNotAllowed = true`, a recovery handler that logs and writes the
-contract shape, and a request-id middleware that puts the id into the
-`slog.Logger` stored on the context.
+Implemented as a new package `internal/httpx`, wired in `cmd/api/main.go` ahead
+of the route groups. `error` kept its meaning, so `code` and `request_id` are
+purely additive and existing clients are unaffected.
 
-**Do not break the existing shape.** `{"error": "<message>"}` is already
-published in [openapi.yaml](../../../api/openapi-spec.md) and implemented. Adding
-`code` and `request_id` is additive; renaming or removing `error` is not.
+**Middleware order is load-bearing.** `RequestID` runs first so everything
+downstream — including the recovery handler — can label its output with the
+correlation id. A panic that happens before the id is assigned would be the one
+incident nobody can correlate.
 
-**Keep the prose useful.** The current messages name the offending parameter
-(`parameter 'radius_km' must be greater than 0 and at most 100`). A `code` is
-for branching, not a reason to make the message vaguer.
+**Client-supplied ids are untrusted.** They land in a response header *and* in
+every log record for the request, which makes them a header-injection and
+log-forging vector. Anything outside `[A-Za-z0-9._-]` or longer than 64 bytes is
+**discarded in favour of a generated id**, not repaired — sanitising attacker
+input by rewriting it invites the next bypass. `crypto/rand` for generation, so
+ids cannot be guessed and replayed to pollute another request's trail.
+
+**Two panic cases, not one.** If the headers are already flushed
+(`c.Writer.Written()`), appending a JSON error body would produce a response
+that is neither the success nor the failure — so the connection is cut instead.
+A broken pipe is logged at DEBUG, not ERROR: the client is gone and nothing is
+wrong with the service.
+
+**The request timeout is cooperative, and that is deliberate.** It cancels the
+request context, which stops everything that honours it — every database call
+does. It cannot interrupt a handler that ignores its context. A hard cut would
+mean writing a response from another goroutine while the handler may still be
+writing its own, which is a worse failure than the gap it closes. Server-level
+`WriteTimeout` is the backstop.
+
+**Server-level timeouts were missing entirely.** `gin.Engine.Run()` builds an
+`http.Server` with no timeouts at all, so a client could hold a connection open
+by trickling a request forever. `cmd/api` now constructs the server explicitly
+with `ReadHeaderTimeout`, `ReadTimeout`, `WriteTimeout` and `IdleTimeout`.
+
+**Keep the prose useful.** The messages still name the offending parameter
+(`parameter 'radius_km' must be greater than 0 and at most 100`). A `code` is for
+branching, not a licence to make the message vaguer.
+
+### Verified end to end
+
+Against the running service with the database paused mid-request:
+
+```json
+{"error":"the query took too long, please retry","code":"timeout","request_id":"fehler-trace-7"}
+```
+
+and the matching log record:
+
+```json
+{"time":"2026-08-10T10:44:54Z","level":"ERROR","msg":"database query timed out",
+ "service":"caregraph-api","request_id":"fehler-trace-7","method":"GET",
+ "path":"/v1/infrastructure/near","query":"lat=52.52&lng=13.405",
+ "error":"near query: context deadline exceeded"}
+```
 
 ## Dependencies
 
@@ -87,12 +133,29 @@ for branching, not a reason to make the message vaguer.
 - **Over-standardising too early.** Codes are a public contract; a short honest
   list beats an invented taxonomy that has to be deprecated.
 
+## Out of scope — deliberately
+
+- **Graceful shutdown.** Now that the server is constructed explicitly it is a
+  small addition, but draining in-flight requests on deploy is a deployment
+  concern → [E4-S1](../epic-4-operations/e4-s1-containerization.md).
+- **JSON logging for the Python pipelines.** They still use
+  `logging.basicConfig` with a plaintext format, so the field schema settled here
+  (`time`, `level`, `msg`, `service`, `request_id`, `error`) is not yet shared
+  across producers → [E4-S3](../epic-4-operations/e4-s3-observability.md).
+- **Where logs are collected.** Deciding between per-service streams and one
+  aggregated file is a deployment decision and should not be made before the
+  target platform is chosen → [E4-S1](../epic-4-operations/e4-s1-containerization.md).
+
 ## Definition of Done
 
-- [ ] Acceptance criteria fulfilled
-- [ ] Tests passing (unit + integration where relevant)
-- [ ] CI covers the new code (pipeline extended if needed)
-- [ ] Documentation updated
+- [x] Acceptance criteria fulfilled
+- [x] Tests passing — 19 cases in `internal/httpx`, including 8 hostile
+      request-id inputs and both panic paths; the provider suite still green
+- [x] CI covers the new code — the existing Go job runs `go test ./...`, which
+      now includes the new package
+- [x] Documentation updated — shared `Error` schema in `openapi.yaml`, `405`/`500`
+      added to both live endpoints, and a code table plus correlation section on
+      the API page
 - [ ] Code reviewed
 
 ## References
