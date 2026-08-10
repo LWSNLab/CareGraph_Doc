@@ -63,7 +63,7 @@ Two deliberate omissions: the pipeline gets **no DELETE on `care_infrastructure`
 | | |
 | :-- | :-- |
 | Providers loaded | **7,522** in ~7 s; re-run: 0 inserted / 7,522 updated |
-| Insurers loaded | **92**, plus 185 state links and 92 history rows |
+| Insurers loaded | **93**, plus 185 state links and 93 history rows |
 | Re-run of the same publication | `history_rows=0` — append-only holds |
 | A later publication | appends; `zusatzbeitrag_aktuell` returns the newer rate |
 | Radius query (warm) | **1.7 ms** Bremen, **5.3 ms** Berlin — within the <10 ms target (NFR1), GIST index used |
@@ -129,12 +129,21 @@ duplicates. The degraded IK run aborts with exit 2 and leaves the table
 untouched. Six integration tests cover it, including that the contribution-rate
 time series stays attached to one row.
 
-**Root cause of the outage, for the record.**
-`https://www.gkv-datenaustausch.de` validates against the macOS system trust
-store but fails against the certifi bundle `requests` uses
-(`unable to get local issuer certificate`) — an incomplete certificate chain
-server-side. Tracked separately; it must **not** be "fixed" by disabling
-verification on a request to a health-data authority.
+**Root cause of the outage, for the record — and a correction.**
+This section first claimed `www.gkv-datenaustausch.de` served an incomplete
+certificate chain. That was wrong. The connections were being **re-signed by a
+TLS-inspecting proxy** on the development machine, presenting a Zscaler
+certificate whose root lives in the OS keychain but not in the certifi bundle
+`requests` uses. Nothing was wrong with the GKV's infrastructure.
+
+Resolved by verifying against the OS trust store —
+[E1-S6](e1-s6-ik-enrichment.md#resolved-the-sources-were-never-broken-2026-08-10).
+
+Worth keeping the lesson attached to *this* story: the symptom (an unreachable
+official source) pointed away from the cause (local interception), and the loader
+turned that misdirection into duplicate rows. **The guard mattered more than the
+outage did** — it is what stands between a confusing environment problem and
+corrupted data.
 
 ## Risks
 

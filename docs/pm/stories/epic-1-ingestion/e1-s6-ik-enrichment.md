@@ -21,13 +21,109 @@ The GKV insurer list (E1-S1) has no IK-Nummer, so insurers are currently identif
 
 - [x] Current Kostenträgerdateien are discovered and downloaded from gkv-datenaustausch.de.
 - [x] `IDK` segments are parsed into an IK ↔ name directory; the authoritative Kassensitz list is parsed on top of it.
-- [x] At least 95% of the insurers are matched to an IK. *(**99% — 91/92.** Only EY Betriebskrankenkasse appears in no official source.)*
+- [x] At least 95% of the insurers are matched to an IK. *(**99% — 92/93.** Only EY Betriebskrankenkasse appears in no official source.)*
 - [x] Unmatched insurers are reported explicitly, never silently dropped.
 - [x] `ik_nummer` is populated in `care_infrastructure` and stays stable across runs.
+
+> **The figures below say "92 insurers" and are left as recorded.** They were
+> accurate when measured; the total became **93** on 2026-08-10, when a parser
+> defect that had merged two insurers into one row was fixed
+> ([E1-S1](e1-s1-gkv-insurer-list.md#fixed-after-the-fact-two-insurers-in-one-row-2026-08-10)).
+> That correction also revealed a **wrong IK mapping**: the merged row carried
+> `105508787`, which belongs to the SVLFG, under a name presenting as SKD BKK.
+> Both now hold their own — SKD BKK `108833505`, SVLFG `105508787`.
 
 ## Technical Notes
 
 **Source:** [Kostenträgerdateien Pflege](https://www.gkv-datenaustausch.de/leistungserbringer/pflege/kostentraegerdateien_pflege/kostentraegerdateien.jsp) (GKV-Spitzenverband). Official, machine-readable, updated on the 1st of each calendar quarter, and not disallowed by `robots.txt`.
+
+### ✅ Resolved: the sources were never broken (2026-08-10)
+
+For a while these sources looked unreachable and coverage sat at 76/93:
+
+```
+SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed:
+unable to get local issuer certificate
+```
+
+**The first diagnosis recorded here was wrong.** It said the server serves an
+incomplete certificate chain. Inspecting what the server actually presents showed
+something else:
+
+```
+0 s:CN=gkv-spitzenverband.de, O=Zscaler Inc.
+1 s:CN=Zscaler Intermediate Root CA (zscalerthree.net)
+2 s:CN=Zscaler Intermediate Root CA (zscalerthree.net)
+```
+
+That is not the GKV's certificate. A **Zscaler appliance was inspecting TLS** on
+the development machine and re-signing these connections. Selectively, too —
+`pypi.org` was untouched, the `gkv-*` domains were not. The Zscaler root sits in
+the macOS system keychain, which is why `openssl s_client` reported
+`Verify return code: 0 (ok)` while `requests` failed: requests validates against
+certifi's bundle of *public* roots, which cannot contain a private corporate one.
+
+So there was no defect in the GKV's infrastructure, and none in CareGraph. The
+symptom was local, and it pointed away from its cause — which is why the guard
+described below matters more than the outage did.
+
+**Fix:** `pipelines/common/trust.py` routes verification through the OS trust
+store via `truststore`, called from each entry point before any network work.
+Verification stays fully on; only the *set of trusted roots* changes to the one
+the machine's administrator configured. On a machine without interception (CI,
+production) the OS store validates the genuine certificate exactly as certifi
+would, so it is safe unconditionally.
+
+| | before | after |
+| :-- | --: | --: |
+| Sources loaded | 1 of 3 | **3 of 3** |
+| Directory entries | 93 | **1,241** |
+| IK coverage | 76/93 (82%) | **92/93 (99%)** |
+
+`verify=False` was never an option: these are requests to institutions in the
+statutory health system, and accepting any certificate would trade
+authentication for convenience. A test asserts no literal `verify=False` is
+introduced.
+
+> **Caveat on that test.** It catches a literal only. `AddressScraper._fetch`
+> relaxes verification through a variable and predates this work; it exists for
+> the three insurer hosts whose certificates are genuinely invalid. An
+> unverified Impressum can feed a wrong address into the dataset, so narrowing
+> that fallback to an explicit per-host allowlist is worth doing — tracked
+> separately, not silently fixed.
+
+### Partial failure is no longer reported as success
+
+`load_all()` used to return only an entry count. A caller could not distinguish
+a complete directory from one built on a third of its inputs — the directory was
+simply thinner and every number downstream quietly worse. That is exactly what
+happened on 2026-08-10: both exchange-file sources were unreachable, coverage
+fell from 91 to 75, and the only trace was a warning several screens up the log.
+
+It now returns a **`DirectoryReport`** listing every source with `ok`, `rows` and,
+on failure, the reason:
+
+```
+📚 IK directory: 93 entries from 1/3 sources (INCOMPLETE)
+   ⚠️  unavailable: Kostenträgerdateien SGB V — SSLError: [SSL: CERTIFICATE_VERIFY_FAILED]
+       certificate verify failed: unable to get local issuer certificate
+```
+
+The same reason is repeated in the regression guard's abort message, so the
+operator sees *why* coverage is low next to the number rather than having to
+correlate the two.
+
+Two details worth keeping:
+
+- **A sector with one unavailable file is not `ok`.** One missing file must not
+  lose the rest of the directory — that behaviour stays — but the sector reports
+  `1 of 2 files failed` rather than silent partial success.
+- **The cause is unwrapped, not truncated.** `requests` reports a TLS failure as
+  `SSLError(MaxRetryError(SSLError(…)))`, where the outer message is ~260
+  characters of connection-pool boilerplate and the actionable sentence sits at
+  the very end. Cutting the front kept the noise and discarded the diagnosis, so
+  the chain is followed first — through `args[0].reason`, since urllib3 does not
+  set `__cause__`.
 
 Format is EDIFACT-like; the relevant segment carries IK and name directly:
 
