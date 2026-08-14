@@ -68,9 +68,9 @@ lookup is where a bad mapping shows up first:
 - **Structured logging is wired up.** `cmd/api` installs a JSON `slog` handler
   on stderr, level via `CAREGRAPH_LOG_LEVEL`.
 
-What is *not* covered here — unknown routes and wrong methods still answer
-`text/plain`, panics still produce an empty body, and there is no request
-correlation id — is specified in [E3-S6](e3-s6-error-contract.md).
+What this story left open — unknown routes and wrong methods answering
+`text/plain`, panics producing an empty body, and no request correlation id —
+was specified and delivered as [E3-S6](e3-s6-error-contract.md). ✅ done.
 
 ## Dependencies
 
@@ -80,8 +80,8 @@ correlation id — is specified in [E3-S6](e3-s6-error-contract.md).
 ## Risks
 
 - Entities without an IK-Nummer are not addressable via this endpoint (by design).
-  **In practice that is 7,523 of 7,614 rows** — every Leistungserbringer plus
-  EY BKK. The endpoint is therefore useful for 91 insurers today and only becomes
+  **In practice that is 7,523 of 7,615 rows** — every Leistungserbringer plus
+  EY BKK. The endpoint is therefore useful for 92 insurers today and only becomes
   broadly useful with [E1-S8](../epic-1-ingestion/e1-s8-provider-ik.md), which is
   waiting on a data-sharing reply. The coverage caveat is already stated in the
   published spec so this does not read as a bug.

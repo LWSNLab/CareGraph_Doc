@@ -28,8 +28,8 @@ Return care providers within a radius of given coordinates, ordered by distance 
 Implemented in `internal/provider`: `params.go` (validation), `repository.go`
 (the PostGIS query), `handler.go` (transport).
 
-**Measured performance** against the loaded database (7,614 rows), dev machine,
-database in Docker:
+**Measured performance** against the loaded database as it stood then (7,614
+rows; 7,615 since the merged-insurer fix), dev machine, database in Docker:
 
 | Layer | p50 | p95 | Method |
 | :-- | --: | --: | :-- |
@@ -69,12 +69,15 @@ so `type=krankenkasse` correctly returns an empty set here.
 
 ## Out of Scope
 
-- **`GET /infrastructure/:ik_nummer`** still returns `501` — that is
-  [E3-S3](e3-s3-entity-lookup.md). The row-scanning helper is shared, so the
-  lookup is a query away.
-- **Real API-key verification and rate limiting** remain
-  [E3-S4](e3-s4-auth-rate-limiting.md); the middleware still only checks that a
-  key is present.
+_Both have since been delivered; kept to record what this story did and did not
+cover._
+
+- **`GET /infrastructure/:ik_nummer`** returned `501` when this story landed —
+  that was [E3-S3](e3-s3-entity-lookup.md), which reused the row-scanning helper
+  built here. ✅ done.
+- **Real API-key verification and rate limiting** were left to
+  [E3-S4](e3-s4-auth-rate-limiting.md); at the time the middleware only checked
+  that a key was present. ✅ done.
 
 ## Dependencies
 
