@@ -29,7 +29,7 @@ This page is the human-readable summary; `openapi.yaml` always wins if the two e
 | `GET` | `/infrastructure/near` | Spatial radius search via PostGIS `ST_DWithin` | ✅ |
 | `GET` | `/infrastructure/search` | In-memory fuzzy text search via Typesense (C++) | ✅ |
 | `GET` | `/infrastructure/{ik_nummer}` | Fetch a single institution by 9-digit IK number ¹ | ✅ |
-| `GET` | `/healthz` | Liveness & readiness probe | ❌ |
+| `GET` | `/healthz` | Liveness probe — does **not** yet check the database or Redis (E4-S3) | ❌ |
 
 ### `GET /infrastructure/near`
 
@@ -52,10 +52,11 @@ This page is the human-readable summary; `openapi.yaml` always wins if the two e
 
 Path parameter `ik_nummer` — the official 9-digit Institutionskennzeichen (`^[0-9]{9}$`).
 
-> ¹ **Only insurers are addressable today.** Every Leistungserbringer has an IK,
-> but no public source publishes those of care providers, so their `ik_nummer`
-> is `null`. Reach them via `/infrastructure/near` or `/infrastructure/search`.
-> Tracked in the backlog as *Provider IK numbers*.
+> ¹ **Only insurers are addressable today** — 92 of 93 resolve. Every
+> Leistungserbringer has an IK, but no public source publishes those of care
+> providers, so their `ik_nummer` is `null`. Reach them via
+> `/infrastructure/near` or `/infrastructure/search`. Tracked in the backlog as
+> *Provider IK numbers*.
 
 ---
 
@@ -93,9 +94,46 @@ Path parameter `ik_nummer` — the official 9-digit Institutionskennzeichen (`^[
 
 ## 4. Errors & Auth
 
-- **Authentication:** send the B2B key in the `X-API-Key` header. Missing/invalid → `401`.
 - **Validation:** malformed coordinates or parameters → `400`.
-- **Rate limiting:** exceeding your tier → `429` (see [Security](../architecture/security.md#2-api-gateway-security)).
+
+### Authentication
+
+Send your key in the `X-API-Key` header:
+
+```
+X-API-Key: cg_337427fa47e2ab17_a1b2c3…
+```
+
+A key has two halves. The first (`337427fa47e2ab17`) is a **public identifier** —
+quote it in a support request, it is not a secret. The second is the secret and is
+shown **once**, at issuance; it is stored only as an Argon2id hash and cannot be
+recovered. A lost key is revoked and reissued.
+
+Missing, malformed and unknown keys all return the same `401` with the same
+message. That is deliberate: a different answer per reason would reveal which key
+ids exist.
+
+### Rate limiting
+
+| Tier | Requests per minute |
+| :-- | --: |
+| Community | 100 |
+| Enterprise | 6,000 (custom SLAs available) |
+
+Every response carries the current budget:
+
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 98
+```
+
+Exceeding it returns `429` with `code: rate_limited` and a **`Retry-After`**
+header in seconds. Limits are a continuously refilling token bucket, not a fixed
+window — a short burst is smoothed out rather than resetting on the minute.
+
+**Repeated authentication failures are limited separately** (20 per minute per
+client address) and also answer `429`. Successful requests never count towards
+that budget, so it only affects a client presenting bad credentials.
 
 ### One error shape, everywhere
 
