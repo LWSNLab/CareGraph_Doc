@@ -204,7 +204,10 @@ paths:
   /healthz:
     get:
       summary: Liveness and Readiness Probe
-      description: Returns service health status including DB and Redis connection states.
+      description: |
+        Liveness only: reports that the process is up. It does **not** yet probe
+        the database or Redis — that is E4-S3. Do not read a 200 here as
+        "dependencies are healthy".
       security: []
       tags:
         - System
@@ -229,7 +232,13 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-      description: B2B API Key authentication header.
+      description: |
+        B2B API key, format `cg_<key_id>_<secret>`. The `key_id` half is a public
+        identifier and may appear in logs; the secret half is shown once at
+        issuance and stored only as an Argon2id hash.
+
+        Missing, malformed and unknown keys all answer the same `401` — the
+        response never reveals whether a key id exists.
 
   schemas:
     ProviderType:
@@ -395,7 +404,19 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     429TooManyRequests:
-      description: Rate limit exceeded
+      description: |
+        The tier quota is exhausted, or too many authentication attempts failed
+        from this address. `Retry-After` says how long to wait.
+      headers:
+        Retry-After:
+          description: Seconds to wait before retrying
+          schema: { type: integer, example: 3 }
+        X-RateLimit-Limit:
+          description: Requests permitted per minute for this key
+          schema: { type: integer, example: 100 }
+        X-RateLimit-Remaining:
+          description: Tokens left in the current bucket
+          schema: { type: integer, example: 0 }
       content:
         application/json:
           schema:
