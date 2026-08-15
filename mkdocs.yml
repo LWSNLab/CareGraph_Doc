@@ -82,6 +82,7 @@ nav:
               - E4-S2 · CI/CD: pm/stories/epic-4-operations/e4-s2-ci-cd.md
               - E4-S3 · Observability: pm/stories/epic-4-operations/e4-s3-observability.md
               - E4-S4 · Security scanning: pm/stories/epic-4-operations/e4-s4-security-scanning.md
+              - E4-S5 · Distributable dataset: pm/stories/epic-4-operations/e4-s5-distributable-dataset.md
           - 5 · Open Source & Funding:
               - Overview: pm/stories/epic-5-open-source/index.md
               - E5-S1 · Repository & licensing: pm/stories/epic-5-open-source/e5-s1-repo-licensing.md
