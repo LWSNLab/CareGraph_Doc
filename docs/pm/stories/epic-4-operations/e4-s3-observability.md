@@ -19,12 +19,62 @@ Expose service health and track ingestion-run status, so operational problems ar
 
 ## Acceptance Criteria
 
-- [ ] `/healthz` reports DB/Redis/Typesense status.
+- [x] ~~`/healthz` reports DB/Redis/Typesense status.~~ **Done as `/readyz`**
+      *(2026-08-16, alongside E3-S5)* — see the correction below.
 - [ ] Ingestion run status is tracked and alertable.
+
+## The criterion was wrong, and doing it as written would have caused an outage
+
+`/healthz` probing its dependencies is the obvious reading, and it is the
+dangerous one. A failing **liveness** probe makes an orchestrator *restart* the
+container. A restart cannot fix someone else's database, so a Postgres blip
+would have restarted every replica in a loop — turning a recoverable dependency
+failure into a total one, at the worst possible moment.
+
+The two questions are different and now have separate endpoints:
+
+| | Asks | On failure |
+| :-- | :-- | :-- |
+| `GET /healthz` | Is this process working? | The orchestrator restarts the container |
+| `GET /readyz` | Should this instance get traffic? | The orchestrator removes it from the load balancer, and puts it back on recovery |
+
+Dependencies belong in the second. `/healthz` is unchanged and answers as long
+as the process can answer, which is the whole of what it claims.
+
+### Severity follows how the API actually degrades
+
+Not how important the dependency sounds:
+
+| Dependency | Down means | Verdict |
+| :-- | :-- | :-- |
+| `postgres` | Every endpoint fails | `503` — take the instance out of rotation |
+| `redis` | Quotas stop being enforced; requests still succeed (the limiter fails open by design) | `200`, `degraded` |
+| `search` | `/search` answers `503`; `/near` and the IK lookup are unaffected | `200`, `degraded` |
+
+Verified by stopping the containers: with Redis down `/readyz` reported
+`degraded` at `200` and `/near` still answered `200`; with Postgres down it
+reported `unavailable` at `503` while `/healthz` stayed `200`.
+
+### Two things the endpoint deliberately does not do
+
+- **It never puts the probe error in the body.** A driver error carries the DSN,
+  the host and the port, and `/readyz` needs no credential. The body reports a
+  state per dependency; the cause goes to the log under the request id, exactly
+  as it does for a `500`. There is a test that greps the response for the host,
+  the port and the driver's wording.
+- **It does not re-probe on every request.** Results are cached for one second.
+  An unauthenticated endpoint that issues a query per dependency is an
+  amplification vector — cheap HTTP requests become database round trips. One
+  second is far below any sensible probe interval, and a test covers both halves:
+  twenty requests run the probe once, and the cache does expire.
+
+Each probe is bounded at two seconds, because a probe that hangs is
+indistinguishable from a dependency that is down and the orchestrator is waiting.
 
 ## Technical Notes
 
-`/healthz` handler is stubbed (returns `ok`); extend it to probe dependencies. Ingestion runs should persist a status record and emit alerts on failure.
+Ingestion runs should persist a status record and emit alerts on failure. That
+is the remaining half of this story.
 
 ### Already done, so this story does not need to
 
@@ -49,7 +99,20 @@ Python pipelines on the same log schema.** The Go API now emits JSON to stderr
 with a settled field set — `time`, `level`, `msg`, `service`, `request_id`,
 `error` — via `slog`. The pipelines still call `logging.basicConfig` with a
 plaintext format, so logs from the two halves of the system cannot be queried
-together. Worth noting what the alignment is and is not:
+together.
+
+**The Go half is now consistent with itself** *(2026-08-16)*. It was not before:
+the router used `gin.Logger()`, which wrote a plain-text line per request to its
+own writer while everything else wrote JSON. That made the *highest-volume*
+producer in the service the one an aggregator could not parse. `httpx.AccessLog`
+replaces it — one `slog` record per request carrying `method`, `path`, `status`,
+`duration_ms`, `bytes`, `client_ip` and the `request_id`, so an access record
+joins to the handler's own records for the same request. The level carries the
+meaning, so a filter alone separates the interesting ones: `4xx` is a warning,
+`5xx` an error, and a client that hung up (`499`) is neither — it would otherwise
+land in the same bucket as real server failures.
+
+Worth noting what the remaining alignment is and is not:
 
 - The valuable part is the **shared field schema**, not a shared configuration
   mechanism. A common YAML consumed by both was considered and rejected: Python
