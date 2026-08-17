@@ -62,7 +62,7 @@ nav:
               - E1-S6 · IK-Nummer enrichment: pm/stories/epic-1-ingestion/e1-s6-ik-enrichment.md
               - E1-S7 · Official open-data supplement: pm/stories/epic-1-ingestion/e1-s7-official-open-data.md
               - E1-S8 · Provider IK numbers: pm/stories/epic-1-ingestion/e1-s8-provider-ik.md
-              - E1-S9 · Hospitals (Standortverzeichnis): pm/stories/epic-1-ingestion/e1-s9-hospital-standortverzeichnis.md
+              - E1-S9 · Hospitals (Bundes-Klinik-Atlas): pm/stories/epic-1-ingestion/e1-s9-hospital-standortverzeichnis.md
           - 2 · Data & Search:
               - Overview: pm/stories/epic-2-data-and-search/index.md
               - E2-S1 · PostGIS schema: pm/stories/epic-2-data-and-search/e2-s1-postgis-schema.md

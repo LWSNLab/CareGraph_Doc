@@ -5,7 +5,7 @@
 | **Epic**         | E4 — Operations & CI/CD |
 | **Story Points** | 3                     |
 | **Priority**     | High                  |
-| **Status**       | ⏳ Planned            |
+| **Status**       | ✅ Done (pending review) |
 
 > ← [Epic 4](index.md) · [Backlog](../index.md)
 
@@ -40,15 +40,18 @@ dataset — explicitly for people who do **not** want to self-host.
 
 ## Three decisions
 
-### 1. What ships
+### 1. What ships — decided: a CSV archive, plus the bootstrap path
 
-| Option | For | Against |
-| :-- | :-- | :-- |
-| **`pg_dump` artefact** | works immediately, no network, no rate limits | ~15 MB, goes stale, must be regenerated per release |
-| **`make bootstrap`** | always current, nothing to maintain | ~40 min, needs Overpass; a rate-limit error on someone's first run looks like a broken project |
+**Not `pg_dump`.** A CSV is inspectable, loadable outside Postgres, and does not
+carry a server version with it — which matters for data published under an open
+licence, where the point is that someone else can use it in their own tools.
 
-Both is also an option: a dump for the quick start, the bootstrap documented for
-those who want fresh data.
+The archive holds `providers.csv`, `MANIFEST.json`, `LICENSE.txt` and `README.md`.
+**0.5 MB compressed**, not the ~15 MB estimated: CSV of 7,522 rows compresses far
+better than a binary dump.
+
+`make bootstrap` covers the other path, and `make bootstrap FILE=…` combines
+migrations and import in one step.
 
 ### 2. What *may* ship — the actual constraint
 
@@ -81,18 +84,18 @@ described, and replaceable.
 
 ## Acceptance Criteria
 
-- [ ] `docker compose up` followed by a documented one-liner yields a database
-      with data in it — verified from a clean clone on a machine that has never
-      run the pipelines.
-- [ ] The shipped artefact carries its licence and attribution *inside* it (a
-      `LICENSE`/`README` in the archive, not only on the release page).
-- [ ] The output licence for the distributed dataset is decided and recorded in
-      [Data Sources & Licensing](../../../legal/data-licensing.md), replacing the
-      current "to be decided".
-- [ ] The dump is reproducible: a documented command regenerates it, so it is not
-      a hand-made file nobody can rebuild.
-- [ ] The README states plainly what the data is, when it was cut, and what it is
-      not (no provider IKs, ~32 % without a full address).
+- [x] `docker compose up` followed by a documented one-liner yields a database
+      with data in it — verified against a **freshly created database** built
+      only from the migrations: 7,522 rows, 100 % with coordinates.
+- [x] The shipped artefact carries its licence and attribution *inside* it —
+      `LICENSE.txt` and `README.md` travel in the archive, not only on a release
+      page.
+- [x] The output licence is decided and recorded: **ODbL v1.0** with attribution,
+      in [Data Sources & Licensing](../../../legal/data-licensing.md).
+- [x] Reproducible: `make dataset-export` regenerates it, and CI performs a full
+      export/import round trip on every run.
+- [x] The README states what the data is, when it was cut, and what it is not
+      (no provider IKs, ~28 % without a full address, insurers excluded).
 
 ## Technical Notes
 
@@ -103,13 +106,26 @@ that detects an empty index and builds it from Postgres. That is a core part of
 E2-S2, not an afterthought: the obvious implementation only handles incremental
 updates and leaves a fresh self-hoster with a working API and an empty `/search`.
 
-**Reproducibility over convenience.** `pg_dump --data-only` for
-`care_infrastructure` plus the satellite tables, restored after `make migrate`,
-keeps the schema owned by the migrations rather than baked into the artefact.
+**The import goes through the ordinary loader**, not a direct `COPY`. That keeps
+idempotency, website normalisation and key resolution identical to ingestion —
+a second way into the database would be a second set of rules to keep in step.
+Verified: a second import reports `inserted=0 updated=7522`.
 
-**Size.** 15 MB for 7,615 rows today; the hospitals ([E1-S9](../epic-1-ingestion/e1-s9-hospital-standortverzeichnis.md))
-would roughly triple the row count. Compressed it stays well inside a release
-asset, but it is a reason not to put it in git.
+**A defect this surfaced.** `_provider_params` derived `osm:<type>/<id>` for
+*every* dict record and ignored an explicit `source_id`, hardcoding one source
+into a source-agnostic loader. Harmless until now — the scraper's records carry
+no `source_id` — but it made re-importing an export impossible without rekeying
+every row as if it came from OpenStreetMap, and it would have mis-keyed the
+hospital directory ([E1-S9](../epic-1-ingestion/e1-s9-hospital-standortverzeichnis.md))
+the same way. An explicit `source_id` now wins; the OSM derivation is the
+fallback.
+
+**The manifest records the schema migration** the archive was cut against, and
+an import refuses a mismatch rather than failing obscurely halfway through.
+`--allow-schema-mismatch` overrides it deliberately.
+
+**Size.** 0.5 MB compressed for 7,522 rows. The hospitals would roughly triple
+that — still small, but a reason to keep it in releases rather than in git.
 
 ## Dependencies
 
@@ -134,10 +150,20 @@ asset, but it is a reason not to put it in git.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria fulfilled
-- [ ] Tests passing (unit + integration where relevant)
-- [ ] CI covers the new code (pipeline extended if needed)
-- [ ] Documentation updated
+- [x] Acceptance criteria fulfilled
+- [x] Tests passing — 16 cases covering archive validation, CSV type coercion
+      (empty cell ≠ empty string, missing coordinate ≠ Null Island), the schema
+      guard and the loader keying fix. Verified against **both** a populated and
+      an empty database, because the first version of the integration tests
+      asserted against ambient data: they passed locally and failed in CI, where
+      the schema is built from migrations and holds nothing. They now seed their
+      own rows and clean up after themselves.
+- [x] CI covers the new code — the Python job now performs an export/import round
+      trip against a schema built purely from migrations, which is the situation a
+      self-hoster is in
+- [x] Documentation updated — README rewritten: the Quick Start led to an empty
+      database and a `401`, and the Status section still claimed the domain
+      methods were stubs
 - [ ] Code reviewed
 
 ## References

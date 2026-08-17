@@ -13,7 +13,7 @@
 | [E1-S6 — IK-Nummer enrichment](e1-s6-ik-enrichment.md) | 3 | Medium | ✅ Done (pending review) |
 | [E1-S7 — Official open-data supplement](e1-s7-official-open-data.md) | 5 | Medium | ⏳ Planned |
 | [E1-S8 — Provider IK numbers](e1-s8-provider-ik.md) | 5 | High | ⏳ Planned |
-| [E1-S9 — Hospitals from the Standortverzeichnis](e1-s9-hospital-standortverzeichnis.md) | 5 | Medium | ⛔ Blocked |
+| [E1-S9 — Hospitals from the Bundes-Klinik-Atlas](e1-s9-hospital-standortverzeichnis.md) | 3 | High | ✅ Done (pending review) |
 
 _Story points & priorities are initial drafts — adjust as needed._
 
@@ -24,7 +24,8 @@ _Story points & priorities are initial drafts — adjust as needed._
 | Insurers (E1-S1) | **93** — 92 with an official Kassensitz-IK; only EY BKK appears in no source |
 | Providers: IK coverage | **0 of 7,522** — no public source exists (→ E1-S8) |
 | Providers (E1-S2) | 7,522 across 16/16 states — 100% coordinates, 68% full address |
-| Loaded into Postgres | ✅ **7,615 rows** — 7,522 providers + 93 insurers, 185 state links, 93 history rows |
+| Hospitals (E1-S9) | **1,577** from the Bundes-Klinik-Atlas — 100 % coordinates, with beds, cases and emergency level |
+| Loaded into Postgres | ✅ **9,192 rows** — 7,522 providers + 1,577 hospitals + 93 insurers, 185 state links |
 | Website URLs | ✅ absolute everywhere — 103 scheme-less values normalised (migration `0004`), scheme measured per host rather than guessed |
 
 ✅ **Resolved in E1-S4:** the `plz`/`ort` `NOT NULL` conflict and the missing upsert key are fixed by migration `0002_loader_prerequisites.sql` (columns nullable, `source_id` added).
@@ -48,4 +49,4 @@ the OS trust store, still fully enabled —
 ✅ **Fixed 2026-08-10:** the scraper no longer retries every host with
 certificate verification disabled. It turned out **no host needs it at all**, so
 the allowlist ships empty and a certificate error is now a real error —
-[details in E1-S1](e1-s1-gkv-insurer-list.md#tls-downgrades-are-now-the-exception-not-the-retry).
+[details in E1-S1](e1-s1-gkv-insurer-list.md#tls-downgrades-are-now-the-exception-not-the-retry-2026-08-10).

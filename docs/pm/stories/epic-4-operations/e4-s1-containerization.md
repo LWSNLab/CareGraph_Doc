@@ -29,11 +29,27 @@ Package every component and provide a one-command local stack, so contributors a
       libpq treats as `prefer` — must refuse to start rather than connect in the
       clear. Applies wherever the DSN is read: `internal/infrastructure/config.go`
       and `pipelines/run_load.py`.
-- [ ] **No credentials in default values.** `config.go` currently defaults to
-      `postgres://caregraph:caregraph@localhost:5433/…`, which compiles a
-      username and password into every built binary and image. Harmless against a
-      throwaway local database, but it does not belong in a shipped artifact —
-      and it is the value a misconfigured deployment would fall back to.
+- [x] **No credentials in default values.** *(done 2026-08-16, alongside E3-S5.)*
+      `config.go` defaulted to `postgres://caregraph:caregraph@localhost:5433/…`,
+      which compiled a username and password into every built binary and image.
+      `DATABASE_URL` now has **no fallback**: `LoadConfig` returns
+      `ErrNoDatabaseURL` and the process stops with an instruction naming
+      `.env.example`.
+
+      `cmd/apikey` carried the same string, and that one was worse — it connects
+      as the **owner** role, the most privileged credential in the repository.
+      Its `--dsn` flag now defaults to `$ADMIN_DATABASE_URL` and nothing else.
+
+      Only the DSNs lost their defaults. `TYPESENSE_URL`, `REDIS_ADDR` and
+      `CAREGRAPH_HTTP_ADDR` keep theirs — they carry no secret, and getting one
+      wrong produces a connection error that says so.
+
+      Consequence for local work: `make api`, `make apikey-dev` and `make apikeys`
+      read `.env`, and stop with a copy-paste instruction when it is missing.
+      Variables already set in the environment win over the file, so
+      `CAREGRAPH_HTTP_ADDR=:9000 make api` does what it says — the obvious
+      `set -a; . ./.env` had the precedence backwards and silently ignored the
+      caller.
 
 ### Why this is *not* a `CAREGRAPH_ENV` story
 
@@ -45,12 +61,17 @@ calls `log.Fatalf` on failure, so a container without `DATABASE_URL` reaches for
 `localhost:5433`, finds nothing, and crash-loops. That is loud, and an
 orchestrator surfaces it immediately.
 
-What genuinely remains is the four items above plus two that already belong
-elsewhere — real API-key verification ([E3-S4](../epic-3-api-gateway/e3-s4-auth-rate-limiting.md))
-and a `/healthz` that probes its dependencies ([E4-S3](e4-s3-observability.md)).
-Introducing a named-environment switch to validate two values would be structure
-without payoff. It becomes justified when QA arrives and there are real per-stage
+What genuinely remains is the items above; API-key verification
+([E3-S4](../epic-3-api-gateway/e3-s4-auth-rate-limiting.md)) and dependency
+probing ([E4-S3](e4-s3-observability.md)) have both since landed. Introducing a
+named-environment switch to validate two values would be structure without
+payoff. It becomes justified when QA arrives and there are real per-stage
 differences to manage.
+
+The remaining TLS criterion is the one place a named environment might still be
+argued for, since "outside local development" has to be decided somehow. The
+cheaper answer is to key it off the DSN itself — `sslmode=disable` against a
+non-loopback host is the thing to refuse — which needs no new switch at all.
 
 **Per-stage config files are deliberately not the plan.** Environment variables
 stay the mechanism (12-factor). Committing `config/prod.yaml` or `.env.production`

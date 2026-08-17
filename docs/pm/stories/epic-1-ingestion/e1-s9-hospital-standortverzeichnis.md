@@ -1,11 +1,11 @@
-# E1-S9 — Hospitals from the Standortverzeichnis
+# E1-S9 — Hospitals from the Bundes-Klinik-Atlas
 
 |                  |                          |
 | :--------------- | :----------------------- |
 | **Epic**         | E1 — Ingestion & ETL     |
-| **Story Points** | 5                        |
-| **Priority**     | Medium                   |
-| **Status**       | ⛔ Blocked — licence question open |
+| **Story Points** | 3                        |
+| **Priority**     | High                     |
+| **Status**       | ✅ Done (pending review) |
 
 > ← [Epic 1](index.md) · [Backlog](../index.md)
 
@@ -17,147 +17,153 @@ boundary between SGB V and SGB XI.
 
 ## Description
 
-Ingest the **Standortverzeichnis nach § 293 Abs. 6 SGB V** — the statutory
-directory of every hospital location licensed under § 108 SGB V and its
-outpatient clinics — as a new `care_infrastructure` type.
+Ingest the **Bundes-Klinik-Atlas** open-data export — the Federal Ministry of
+Health's hospital transparency directory under § 135d SGB V, prepared by the
+IQTIG — as a new `care_infrastructure` type.
 
-This is the directory layer only: who exists, where, under which identifiers.
-Quality-report content (Fachabteilungen, Fallzahlen, indicators) is explicitly
-not part of this story; see *Out of scope*.
+This turns CareGraph from a care directory into a cross-sector one. Today the
+dataset stops at the boundary a patient actually crosses: hospital → rehab →
+outpatient care.
 
-## ⛔ Precondition: redistribution must be clarified first
+> **Rewritten 2026-08-15.** This story was originally built on the
+> *Standortverzeichnis* (§ 293 Abs. 6 SGB V) and was blocked on a redistribution
+> question. The Bundes-Klinik-Atlas turned out to be the better primary source:
+> freely downloadable, statutorily public, and carrying quality data the
+> Standortverzeichnis does not. The Standortverzeichnis is now an optional
+> enrichment for the one field the Atlas lacks — see *Later*.
 
-**Do not start the ingest before this is answered.** Everything else can proceed.
+## Why this source
 
-The Verzeichnisvereinbarung says the contents are *published* in machine-readable
-form (§ 2 Abs. 2) but that **"Voraussetzung für den Abruf ist eine Anmeldung bei
-der Verzeichnisstelle"** (§ 2 Abs. 3). The site repeats this: public to search and
-download, *registration required*.
+| | Bundes-Klinik-Atlas | Standortverzeichnis |
+| :-- | :-- | :-- |
+| Access | **open download, no registration** | registration required, redistribution unaddressed |
+| Legal basis | § 135d Abs. 1 SGB V — a public **right** to the data in machine-readable form | § 293 Abs. 6 SGB V, retrieval after sign-up |
+| Records | 1,577 hospitals | 15,685 locations incl. outpatient clinics |
+| Coordinates | 100 % | 100 % |
+| **IK** | ✗ | ✓ |
+| Structure & quality data | ✓ beds, cases, nursing ratio, emergency level, certificates, departments | ✗ |
 
-Two things follow:
+Both carry `STOID` / `StandortId`, so they join on it. That is what makes the
+Atlas sufficient on its own and the Standortverzeichnis an optional top-up.
 
-1. **Register first.** Self-service at `krankenhausstandorte.de/register`, free,
-   no application form. This is the front door.
-2. **Redistribution is nowhere addressed.** Publication in a statutory directory
-   is not by itself permission to republish through a third-party API, and a
-   compiled directory can attract protection under §§ 87a ff. UrhG even where
-   each fact is public — the same reasoning already applied to the care data.
+## Licence: ship the pipeline, not the data
 
-**The retrieval files are currently reachable without any login** (open directory
-index, permissive `robots.txt`). That is an implementation gap, not a permission.
-Building on it would be exactly the "it is public anyway" argument this project
-deliberately does not make — see the tone guidance in the data-request template.
+The open-data page states the public right to the data but **names no licence**,
+and says nothing about redistribution. Rather than wait on that:
 
-Contact: `info@krankenhausstandorte.de`. Unlike the [E1-S8](e1-s8-provider-ik.md)
-request this is an enquiry about a running, routine process with a named desk,
-not a cooperation decision — a materially better position.
+**CareGraph distributes the parser, not the file.** A self-hoster downloads the
+export themselves — they hold the same § 135d right — and runs the loader against
+it. CareGraph redistributes nothing, so the question does not arise.
+
+Concretely: **hospitals are not part of the dataset archive** from
+[E4-S5](../epic-4-operations/e4-s5-distributable-dataset.md), which stays
+providers-only under ODbL. If redistribution is clarified later, adding them is
+an extension rather than a correction.
 
 ## Acceptance Criteria
 
-- [ ] Registered with the Verzeichnisstelle; redistribution terms answered in
-      writing and recorded in [Data Sources & Licensing](../../../legal/data-licensing.md).
-- [ ] Weekly complete XML parsed into provider records; the published XSD is used
-      to validate rather than trusting the shape.
-- [ ] Hospitals loaded as `care_infrastructure` with `type = 'krankenhaus'`,
-      carrying **IK, Standortnummer, address and coordinates** from the source.
-- [ ] Only currently valid entries are loaded (`Aktiv`, `GültigVon`/`GültigBis`).
-- [ ] The load is idempotent on re-run, keyed on the Standortnummer.
-- [ ] Attribution recorded per record, in whatever form the answer above requires.
+- [x] The export is parsed with the root element checked, so a foreign XML fails
+      with a readable error instead of loading nothing.
+- [x] Hospitals load as `care_infrastructure` with `type = 'krankenhaus'`,
+      carrying name, address, coordinates and `STOID` as the key — **1,577 rows,
+      100 % with coordinates and Bundesland**.
+- [x] Structure and quality attributes preserved in `details` — beds, cases,
+      nursing-staff ratio, emergency level, certificates, departments, diseases.
+- [x] Federal states map to the canonical `bundeslaender` names, asserted by test.
+- [x] Idempotent: a second run reports `inserted=0 updated=1577`.
+- [x] The download is **not** committed — `pipelines/data/raw/*` is now ignored
+      wholesale, replacing a `*.pdf` rule that left a 5.4 MB export one
+      `git add -A` from the history.
 
 ## Technical Notes
 
-**No scraping, no geocoding, no fuzzy matching.** The three problems that make the
-care-provider pipeline expensive do not exist here — the source carries every
-field already. Verified against the real file:
+**No scraping, no geocoding, no fuzzy matching.** All three expensive problems of
+the care-provider pipeline are absent — the source carries every field.
 
-```xml
-<ReferenzKrankenhaus><IK>260551132</IK></ReferenzKrankenhaus>
-<StandortId>771077</StandortId>
-<Bezeichnung>Josephs-Hospital Warendorf</Bezeichnung>
-<Längengrad>8.002352893336</Längengrad>
-<Breitengrad>51.960420529706</Breitengrad>
-<Straße>Am Krankenhaus</Straße><Hausnummer>2</Hausnummer>
-<PLZ>48231</PLZ><Ort>Warendorf</Ort>
-<Gemeindeschlüssel>05570052</Gemeindeschlüssel>
-<Einrichtung><Standortnummer>771077015</Standortnummer>
-  <AbrechnungsIK>260551132</AbrechnungsIK></Einrichtung>
-```
-
-Measured on one of the two weekly files (2026-08-14, part 2 of 2):
+Measured on the 2026-07-28 export:
 
 | | |
 | :-- | --: |
-| Standorte | 15,685 |
-| active | 15,678 |
-| **with coordinates** | **100 %** |
-| distinct hospital IKs | 1,765 |
-| Einrichtungen (departments, clinics) | 107,101 |
+| Hospitals | 1,577 |
+| STOID unique | 1,577 / 1,577 |
+| Name, address, coordinates | **100 %** |
+| URL | 95 % |
+| With departments / diseases | 1,575 / 1,483 |
 
-**Two decisions the data forces.**
+**`Land` uses non-ISO codes.** Bayern is `BA`, not `BY`. A naive ISO mapping
+would drop 277 hospitals or file them nowhere. The mapping is verified against
+the distribution: `NW` 328 (largest state), `BA` 277, `HB` 12 (smallest) — all
+consistent with reality.
 
-*What is a row?* A `Standort` has many `Einrichtung` children — 107,101 of them
-against 15,685 locations. Loading every Einrichtung would swamp the 7,522 care
-providers with hospital departments and make a radius search useless. **Load
-`Standort`, not `Einrichtung`**, and keep the Einrichtungstyp list in `details`.
+**The key is `STOID`**, not the name: `source_id = "stoid:<STOID>"`. It is unique
+across all 1,577, stable across publications, and the join key to the
+Standortverzeichnis should the IK be added later.
 
-*What is the key?* The **Standortnummer**, not the IK. A hospital operator holds
-one IK across many locations, so the IK is not unique per row; the Standortnummer
-is, and it is mandatory in billing, which is why the directory exists at all.
-`source_id` becomes `standort:<Standortnummer>`.
+**No IK, and that is expected.** Hospitals join the 7,522 care providers in
+having `ik_nummer = NULL`. Unlike the providers, though, theirs *is* publicly
+obtainable — see *Later*.
 
-**`ik_nummer` finally gets used for providers.** Until now it was populated for
-insurers only, and 0 of 7,522 care providers had one. Hospitals arrive with it —
-the first Leistungserbringer in the dataset that do.
+**A new `provider_type` enum value** is required (migration), plus the API's
+`type` filter and the OpenAPI enum.
 
-**Historisation is available.** `GültigVon`/`GültigBis`/`Aktiv` are per record, and
-past validity periods are retrievable. Out of scope here (load the current state),
-but it is the natural source for a future time series.
+## Later — IK enrichment
 
-Implementation under `pipelines/parsers/standortverzeichnis.py`, loaded through
-the existing `PostgresLoader` — the loader is source-agnostic and already carries
-providers and insurers. A new `provider_type` enum value is needed.
+The Standortverzeichnis supplies the IK per `StandortId`. It needs a free
+self-service registration and its redistribution terms are unclear, so it stays
+out of this story. Once clarified it is a join on a key both sides already carry
+— an enrichment step in the shape of [E1-S6](e1-s6-ik-enrichment.md), not a
+re-ingest.
 
 ## Out of scope
 
-- **G-BA quality reports** (§ 136b SGB V) — Fachabteilungen, Fallzahlen,
-  indicators. A different product question: a directory has no equivalent in
-  Germany, whereas quality comparison already has the state-funded
-  Bundes-Klinik-Atlas. Also a separate access process (order form, not
-  self-service). Decide that on its merits, not as a side effect of this story.
-- **Ambulanzen as separate rows** — they are Einrichtungen of a Standort here.
+- **G-BA quality reports** (§ 136b SGB V). The Atlas already carries the quality
+  layer that mattered; the full reports remain a separate product question with
+  their own order process.
 - **Rehabilitation and Vorsorge facilities** — not in this directory.
+- **Shipping hospitals in the distributable dataset** — see *Licence* above.
 
 ## Dependencies
 
 - **Depends on:** E1-S4 (the loader), E2-S1 (schema — needs the new enum value)
-- **Blocks:** nothing. Independent of [E1-S8](e1-s8-provider-ik.md), which is
-  waiting on a different institution.
+- **Blocks:** nothing. Independent of [E1-S8](e1-s8-provider-ik.md), which waits
+  on a different institution.
 
 ## Risks
 
-- **Redistribution may be refused or restricted.** Then the story stops at the
-  precondition, and the work is one unused parser rather than a wrong dataset.
-- **Scope drift into quality data.** The quality reports are the interesting-looking
-  part and the one that changes what the product is. Keeping them out is the point
-  of the *Out of scope* section, not an oversight.
-- **The two-part weekly file is a moving target.** It was split in January 2026 and
-  could be split further; the parser must discover the parts rather than hardcode
-  two.
-- **15,685 locations against 7,522 care providers** shifts the dataset's centre of
-  gravity. Worth checking how `type` filtering behaves in the API afterwards.
+- **The schema is marked `Alpha_3`.** An alpha-stage export format can change
+  without ceremony; validating against the XSD is what turns that into a clear
+  failure instead of silently missing fields.
+- **A snapshot, not a feed.** The export is published periodically; the loaded
+  data ages until someone re-runs it. `details` records the export date.
+- **1,577 hospitals against 7,522 providers** shifts what a radius search
+  returns. Worth re-checking how `type` filtering behaves afterwards.
+- **Case numbers invite over-reading.** `AnzahlFaelle` is a count, not a quality
+  judgement. It is stored as given, and the API must not present it as a ranking.
+
+## A defect this surfaced
+
+**The dataset export would have shipped the hospitals.** E4-S5's filter read
+`type <> 'krankenkasse'` — an exclusion, so every type added later joined the
+ODbL-licensed archive silently, and this story added one whose redistribution
+terms are unsettled. Changed to an allowlist: `EXPORTABLE_TYPES` names what may
+go in, so extending it is a licence decision rather than a filter change.
+Verified — with 9,192 rows in the database the export still writes 7,522.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria fulfilled
-- [ ] Tests passing (unit + integration where relevant)
-- [ ] CI covers the new code (pipeline extended if needed)
-- [ ] Documentation updated
+- [x] Acceptance criteria fulfilled
+- [x] Tests passing — 10 parser cases driven by literal XML (so the suite does
+      not depend on a download that is deliberately absent), plus a guard that
+      latitude and longitude are not transposed, plus two on the export allowlist
+- [x] CI covers the new code
+- [x] Documentation updated — `krankenhaus` added to the `ProviderType` enum in
+      `openapi.yaml` and to the API page
 - [ ] Code reviewed
 
 ## References
 
-- [§ 293 Abs. 6 SGB V](https://www.gesetze-im-internet.de/sgb_5/__293.html) ·
-  [§ 2a KHG](https://www.gesetze-im-internet.de/khg/__2a.html)
-- [Verzeichnisvereinbarung](https://www.dkgev.de/fileadmin/default/Mediapool/2_Themen/2.1_Digitalisierung_Daten/2.1.2._Informationstechnik_im_Krankenhaus/2.1.2.1._Verzeichnisse_und_Register/2025-06-01_Verzeichnisvereinbarung_gemaess____293_Absatz_6_SGB_V_.pdf) ·
-  [Standortverzeichnis](https://krankenhausstandorte.de/)
+- [Bundes-Klinik-Atlas Open Data](https://bundes-klinik-atlas.de/open-data/) ·
+  [Datengrundlage](https://bundes-klinik-atlas.de/datengrundlage/)
+- [§ 135d SGB V](https://www.gesetze-im-internet.de/sgb_5/__135d.html) ·
+  [§ 293 SGB V](https://www.gesetze-im-internet.de/sgb_5/__293.html)
 - [Data Sources & Licensing](../../../legal/data-licensing.md)

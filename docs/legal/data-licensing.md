@@ -58,7 +58,15 @@ This is the same model as OpenStreetMap-based commercial services: the data is o
 ## 5. Output Licensing
 
 - **Software:** AGPLv3.
-- **Derived data (CareGraph dataset):** to be decided — a candidate is a permissive open-data license such as **CC BY 4.0** or **ODbL** for the aggregated dataset, with mandatory attribution. Note that OSM-derived geocodes may impose **ODbL share-alike** on the combined dataset; this must be resolved before choosing the dataset license.
+- **Derived data (CareGraph dataset): ODbL v1.0** — decided 2026-08-15 with
+  [E4-S5](../pm/stories/epic-4-operations/e4-s5-distributable-dataset.md). The
+  provider rows are not merely *geocoded* with OpenStreetMap data, they **are** an
+  OpenStreetMap extract, which makes the table a Derivative Database and settles
+  share-alike rather than leaving it open. The distributed archive therefore
+  carries ODbL and the required attribution. Insurers are excluded from the
+  archive: they are re-derived from a GKV publication whose redistribution terms
+  are unresolved, and mixing sources would make the file inherit the strictest of
+  them.
 - **Attribution string** (draft): *"Contains data from GKV-Spitzenverband and official § 7 SGB XI directories; geocoding © OpenStreetMap contributors (ODbL)."*
 
 ---
