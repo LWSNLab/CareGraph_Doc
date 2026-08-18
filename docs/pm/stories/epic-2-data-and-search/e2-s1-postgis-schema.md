@@ -5,7 +5,7 @@
 | **Epic**         | E2 — Data Model & Search |
 | **Story Points** | 3                        |
 | **Priority**     | High                     |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 2](index.md) · [Backlog](../index.md)
 
@@ -46,7 +46,7 @@ Verified in the running database: GIST on `location`, GIN on `details`, compound
 - [x] Tests passing (loader integration tests exercise the schema)
 - [x] CI covers the new code (migrations applied against a PostGIS service container)
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

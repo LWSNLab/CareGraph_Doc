@@ -5,7 +5,7 @@
 | **Epic**         | E1 — Ingestion & ETL     |
 | **Story Points** | 5                        |
 | **Priority**     | High                     |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 1](index.md) · [Backlog](../index.md)
 

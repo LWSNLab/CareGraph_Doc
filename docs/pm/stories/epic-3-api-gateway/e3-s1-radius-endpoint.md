@@ -5,7 +5,7 @@
 | **Epic**         | E3 — Public API Gateway |
 | **Story Points** | 5                      |
 | **Priority**     | High                   |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 3](index.md) · [Backlog](../index.md)
 
@@ -98,7 +98,7 @@ cover._
       skipping
 - [x] Documentation updated — `openapi.yaml` now carries the bounds the code
       enforces (`lat` ±90, `lng` ±180, `radius_km` 0 < r ≤ 100, `limit` 1–100)
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

@@ -5,7 +5,7 @@
 | **Epic**         | E3 — Public API Gateway |
 | **Story Points** | 2                      |
 | **Priority**     | High                   |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 3](index.md) · [Backlog](../index.md)
 
@@ -95,7 +95,7 @@ was specified and delivered as [E3-S6](e3-s6-error-contract.md). ✅ done.
       container, so the new integration tests run there too
 - [x] Documentation updated — `openapi.yaml` gained the `400`, `401` and `504`
       responses this endpoint can actually return
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

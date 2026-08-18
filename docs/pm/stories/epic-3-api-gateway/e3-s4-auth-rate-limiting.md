@@ -5,7 +5,7 @@
 | **Epic**         | E3 — Public API Gateway |
 | **Story Points** | 5                      |
 | **Priority**     | High                   |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 3](index.md) · [Backlog](../index.md)
 
@@ -163,7 +163,7 @@ unattributable key cannot be revoked with confidence.
 - [x] CI covers the new code — the Go job gained a Redis service, so the Lua
       token bucket is exercised instead of skipped
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

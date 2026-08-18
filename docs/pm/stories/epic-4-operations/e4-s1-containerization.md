@@ -5,7 +5,7 @@
 | **Epic**         | E4 — Operations & CI/CD |
 | **Story Points** | 3                     |
 | **Priority**     | Medium                |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 4](index.md) · [Backlog](../index.md)
 
@@ -337,7 +337,7 @@ compose cannot depend on. Left as is and written down rather than papered over.
       DSN cases and 25 Python DSN cases
 - [x] CI covers the new code — `images.yml`, plus the DSN guards under `go test` / `pytest`
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 
