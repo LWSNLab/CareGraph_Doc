@@ -20,12 +20,27 @@ Two legal facts frame everything below:
 
 ## 2. Source-by-Source Assessment
 
+Reviewed against the ingestion code on **2026-08-21**. Everything below is a
+source the pipelines actually read; §2.1 lists what was considered and is not
+used, which is a different and equally load-bearing statement.
+
 | Source | Content | Nature | Notes / Action |
 | :--- | :--- | :--- | :--- |
-| **GKV-Spitzenverband** – insurer list | Statutory insurers, contribution rate, region | Officially published list | Facts are public; re-derive from the official publication, cite `quelle` + `Stand`. |
-| **Pflege-Transparenz / care directories (§ 7, § 115 SGB XI)** | Care providers, quality data | Legally mandated public transparency | Strongest legal footing — publication is required by law. |
-| **vdek / AOK / ZQP directories** | Provider contact data | Provider directories on private sites | Check each site's ToS & `robots.txt`; treat their directory as a *protected DB* → re-collect facts, don't mirror. |
-| **OpenStreetMap / Nominatim** (geocoding) | Coordinates | ODbL-licensed | ODbL is **share-alike for derived databases** — attribution required; understand ODbL obligations before storing geocodes at scale (self-host Nominatim to control usage). |
+| **OpenStreetMap**, via the Overpass API | ~7,500 care providers — outpatient services, nursing homes, Pflegestützpunkte, with coordinates | ODbL-licensed database | The provider rows are **not merely geocoded with** OSM data, they **are** an OSM extract. That makes the table a Derivative Database: share-alike and attribution apply to the whole of it, not to a coordinate column. Settled in §5. |
+| **GKV-Spitzenverband** — insurer list | 93 statutory insurers, contribution rate, region | Officially published list | Facts are public; re-derived from the official publication, `quelle` + `Stand` recorded. Redistribution terms of the publication itself are unresolved, so insurers are **excluded from the distributed archive**. |
+| **ARGE·IK Schlüsselverzeichnis** (`institut-ba.de`) | Institutionskennzeichen, for enriching insurer records | Official key directory | Used to attach IKs to insurers already collected. Not bulk-copied — lookups against records the project holds. |
+| **Bundes-Klinik-Atlas** open data | 1,577 hospital sites | Federal open-data publication | Ingested into the database, **withheld from every published archive** pending an answer from the Standortverzeichnis (asked 2026-08-10, § 2 Abs. 3). See the caveat in §5. |
+
+### 2.1 Considered and not used
+
+Naming these matters as much as naming the sources: the absence is a decision,
+not an oversight.
+
+| Not used | Why |
+| :--- | :--- |
+| **Pflege-Transparenz / care directories (§ 7, § 115 SGB XI)** | Legally mandated transparency would be the strongest possible footing, and remains the preferred future source for provider data. Not ingested today — the provider set comes from OpenStreetMap. |
+| **vdek / AOK / ZQP directories** | Provider directories on private sites, protected as compiled databases under §§ 87a–87e UrhG. Not scraped, even where a narrow reading of `robots.txt` might allow it. The question is whom to ask, not how much may be taken — see §6. |
+| **Nominatim** geocoding | Not used. Coordinates come with the OSM objects themselves, so no separate geocoding step exists and no geocoding cache is needed. |
 
 ---
 
@@ -36,9 +51,9 @@ To stay on the safe side of the *sui generis* right and source terms, the ingest
 * **Primary sources first.** Prefer official, legally-mandated publications over third-party aggregators.
 * **Re-collect, don't mirror.** Extract and re-verify individual facts; never copy a substantial portion of a third party's database wholesale.
 * **Respect `robots.txt` and ToS.** Honor crawl directives and rate limits; identify the crawler honestly via User-Agent.
-* **Attribution & provenance.** Every record stores its source and date (`quelle`, `gueltig_ab`). OSM-derived geocodes carry the required ODbL attribution.
-* **Politeness.** Conservative request rates and caching (the geocoding cache in the roadmap) minimize load on sources.
-* **Takedown path.** A documented process to correct or remove any record on justified request.
+* **Attribution & provenance.** Every record stores its source and date (`quelle`, `gueltig_ab`), and OSM-derived records carry the required ODbL attribution.
+* **Politeness.** Conservative request rates minimize load on sources — one Overpass query per ingestion run rather than per record.
+* **Takedown path.** A documented process to correct or remove any record on justified request — the **Data correction** issue template, which handles a removal request on its own terms and without demanding a source.
 
 ---
 
@@ -67,14 +82,32 @@ This is the same model as OpenStreetMap-based commercial services: the data is o
   archive: they are re-derived from a GKV publication whose redistribution terms
   are unresolved, and mixing sources would make the file inherit the strictest of
   them.
-- **Attribution string** (draft): *"Contains data from GKV-Spitzenverband and official § 7 SGB XI directories; geocoding © OpenStreetMap contributors (ODbL)."*
+- **Attribution string**, as shipped in every archive's `LICENSE.txt` and
+  `MANIFEST.json`:
+
+  > © OpenStreetMap contributors (ODbL)
+
+  An earlier draft here read *"Contains data from GKV-Spitzenverband and official
+  § 7 SGB XI directories; geocoding © OpenStreetMap contributors"*. It was wrong
+  in three ways at once — it credited sources that are not in the archive,
+  described OSM as a geocoding step rather than the origin of the records, and
+  contradicted the decision three lines above it. The string above is what
+  `pipelines/dataset/export.py` actually writes; if the two ever disagree, the
+  code is right and this page is stale.
+
+- **What enforces this.** The exporter carries an **allowlist** of provider types
+  rather than an exclusion list, because a licence is a property of the source,
+  not of the table. Adding a type to it is a licensing decision. The first
+  version excluded `krankenkasse` instead, which meant every type added later
+  joined the archive silently — and one did: hospitals would have put 1,577
+  Bundes-Klinik-Atlas rows into a file labelled ODbL.
 
 ---
 
 ## 6. Open Questions (for counsel)
 
-1. Does storing OSM/Nominatim geocodes at scale trigger ODbL share-alike on the *entire* CareGraph dataset, or can geocodes be isolated?
-2. Is a `CC BY` vs `ODbL` output licence compatible with all upstream obligations?
+1. ~~Does storing OSM geocodes at scale trigger ODbL share-alike on the *entire* dataset, or can geocodes be isolated?~~ **Closed 2026-08-15.** The question dissolved rather than being answered: the provider records *are* an OSM extract, not records geocoded with OSM, so there is no geocode to isolate. The archive ships ODbL — see §5.
+2. Is a `CC BY` vs `ODbL` output licence compatible with all upstream obligations? *(Live for any future non-OSM source; settled for what ships today.)*
 3. GDPR: sole traders (*Einzelunternehmen*) as care providers may be natural persons — is any of the published contact data personal data under Art. 4 GDPR, and what is the lawful basis (Art. 6(1)(f))?
 4. For each third-party directory we might use: **who holds the rights, and what terms would they attach to a licensed export?**
 

@@ -1,0 +1,9 @@
+blank_issues_enabled: true
+
+contact_links:
+  - name: Bug in CareGraph itself
+    url: https://github.com/LWSNLab/CareGraph/issues/new/choose
+    about: This repository is documentation only. Code and data issues belong there.
+  - name: Security vulnerability
+    url: https://github.com/LWSNLab/CareGraph/security/advisories/new
+    about: Report privately. Please do not open a public issue for security problems.

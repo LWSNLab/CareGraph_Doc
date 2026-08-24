@@ -5,7 +5,7 @@
 | **Epic**         | E5 — Open Source & Funding   |
 | **Story Points** | 2                            |
 | **Priority**     | Medium                       |
-| **Status**       | ⏳ Planned                   |
+| **Status**       | 🔄 In Progress — everything prepared; the switch itself is unflipped |
 
 > ← [Epic 5](index.md) · [Backlog](../index.md)
 
@@ -28,10 +28,11 @@ indexed within hours, and none of that comes back.
 
 - [x] Core licensed AGPLv3, docs CC BY-SA 4.0. *(Both `LICENSE` files are in
       place; nothing to do.)*
-- [ ] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, issue and PR templates.
-      `SECURITY.md` already exists.
-- [ ] A documented way to request an API key — see below.
-- [ ] **The pre-publication checklist below is complete.**
+- [x] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, issue and PR templates — in both
+      repositories. `SECURITY.md` already existed.
+- [x] A documented way to request an API key — an issue template, plus the path
+      named in the README and `CONTRIBUTING.md`.
+- [x] **The pre-publication checklist below is complete.**
 - [ ] **Both repositories switched to public.**
 - [ ] The steps that publication makes free are taken: GHCR image push, and
       GitHub Code Quality and Secret Protection switched back on.
@@ -40,14 +41,14 @@ indexed within hours, and none of that comes back.
 
 Each of these is cheap to check and expensive to miss.
 
-| Check | State as of 2026-08-18 |
+| Check | State as of 2026-08-21 |
 | :-- | :-- |
 | No secrets anywhere in history | ✅ `gitleaks git .` clean over the full history, and CI enforces it |
-| The flagged commit `9695e7df` is gone | ⚠️ Not an ancestor of `develop` and deleted on origin, so it would not be published — but a **local** branch still holds it. Delete `feature/e3-s5-openapi-docs` locally, then `.gitleaksignore` can go with it |
+| The flagged commit `9695e7df` is gone | ✅ `feature/e3-s5-openapi-docs` is deleted locally and on origin, and the commit is reachable from no ref — `git log --all` no longer lists it, which is exactly what gitleaks walks. `.gitleaksignore` removed with it, so nothing suppresses a finding any more |
 | Negotiating drafts stay out | ✅ `CareGraph_Doc/internal/` is gitignored and nothing under it is tracked |
 | No credentials in tracked files | ✅ Verified; the only DSNs are in `.env.example`, visibly examples, and in `make db-roles-dev`, whose purpose is throwaway dev passwords |
 | Raw source data stays out | ✅ Only `ik_overrides.json`, `manual_overrides.json` and a `.gitkeep` are tracked under `pipelines/data/` |
-| [Data Sources & Licensing](../../../legal/data-licensing.md) reviewed | ⏳ Named in this story's own risks; read it once against what is actually ingested |
+| [Data Sources & Licensing](../../../legal/data-licensing.md) reviewed | ✅ Reviewed against the ingestion code and corrected — see below |
 | The quickstart works for a stranger | ✅ Walked verbatim against an empty database during the [E4-S1](../epic-4-operations/e4-s1-containerization.md) release acceptance test |
 
 **The hospital caveat.** The Bundes-Klinik-Atlas records are ingested and the
@@ -55,6 +56,31 @@ redistribution question sent to the Standortverzeichnis on 2026-08-10 is still
 unanswered. This does not block publishing the *code*: the release archive
 already excludes hospitals by an allowlist rather than an exclusion. It does mean
 nobody should add them to a published dataset before there is an answer.
+
+## The licensing page described an ingestion that does not exist
+
+The checklist said to read [Data Sources & Licensing](../../../legal/data-licensing.md)
+once against what is actually ingested. Doing so found the page had drifted in
+both directions at once.
+
+| The page said | Reality |
+| :-- | :-- |
+| Providers come from Pflege-Transparenz (§ 7, § 115 SGB XI) and vdek/AOK/ZQP directories | Neither is read. Providers are an OpenStreetMap extract via Overpass |
+| — | Bundes-Klinik-Atlas is ingested and was absent from the table entirely |
+| — | The ARGE·IK Schlüsselverzeichnis is ingested for IK enrichment, also absent |
+| Attribution: *"…GKV-Spitzenverband and official § 7 SGB XI directories; geocoding © OpenStreetMap contributors"* | Every archive ships `© OpenStreetMap contributors (ODbL)` |
+
+The attribution draft was the worst of them: it credited sources that are not in
+the archive, called OSM a geocoding step when it is the origin of the records,
+and contradicted a decision three lines above it in the same section.
+
+The **code** was right throughout — `pipelines/dataset/export.py` carries an
+allowlist and writes the correct notice. Only the document was wrong, which is
+the more dangerous way round for a page that a funder or a lawyer reads before
+anyone reads the source. Corrected, with the sources that are *not* used now
+named as deliberate absences rather than left to look like oversights, and the
+first open question closed: it dissolved rather than being answered, since there
+is no geocode to isolate from an extract.
 
 ## What publishing the repository is not
 
