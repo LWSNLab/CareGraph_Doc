@@ -1,0 +1,35 @@
+name: Documentation problem
+description: A page is wrong, out of date, missing, or hard to follow.
+labels: [documentation]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Which page
+      description: The URL or the path in this repository.
+      placeholder: docs/architecture/versioning.md
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind
+      options:
+        - It describes something the code no longer does
+        - It is wrong
+        - Something is missing
+        - It is correct but hard to follow
+        - A broken link
+    validations:
+      required: true
+
+  - type: textarea
+    id: detail
+    attributes:
+      label: What is wrong
+      description: >
+        If a page has drifted from the code, a pointer to the code that decides
+        it settles the question fastest.
+    validations:
+      required: true

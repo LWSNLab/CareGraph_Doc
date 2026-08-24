@@ -5,7 +5,7 @@
 | **Epic**         | E1 — Ingestion & ETL     |
 | **Story Points** | 3                        |
 | **Priority**     | Medium                   |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 1](index.md) · [Backlog](../index.md)
 
@@ -196,7 +196,7 @@ Rows may carry an older key — the name key from before IKs existed, or a super
 - [x] Tests passing (38 for this module, 205 total; all matcher tests run offline)
 - [x] CI covers the new code
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

@@ -5,7 +5,7 @@
 | **Epic**         | E2 — Data Model & Search |
 | **Story Points** | 5                        |
 | **Priority**     | Medium                   |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 2](index.md) · [Backlog](../index.md)
 
@@ -124,7 +124,7 @@ until an unrelated bug walked it.
       explicit readiness wait**, because the search tests skip when it is
       unreachable and would otherwise quietly not run
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

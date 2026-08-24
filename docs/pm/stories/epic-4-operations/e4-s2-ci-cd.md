@@ -5,7 +5,7 @@
 | **Epic**         | E4 — Operations & CI/CD |
 | **Story Points** | 3                     |
 | **Priority**     | Medium                |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 4](index.md) · [Backlog](../index.md)
 
@@ -58,7 +58,7 @@ Details worth knowing:
 - [x] Tests passing (147 locally; 146 + 1 skipped in CI)
 - [x] CI covers the new code (pipeline extended if needed)
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

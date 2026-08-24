@@ -5,7 +5,7 @@
 | **Epic**         | E4 — Operations & CI/CD |
 | **Story Points** | 3                     |
 | **Priority**     | High                  |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 4](index.md) · [Backlog](../index.md)
 
@@ -164,7 +164,7 @@ that — still small, but a reason to keep it in releases rather than in git.
 - [x] Documentation updated — README rewritten: the Quick Start led to an empty
       database and a `401`, and the Status section still claimed the domain
       methods were stubs
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

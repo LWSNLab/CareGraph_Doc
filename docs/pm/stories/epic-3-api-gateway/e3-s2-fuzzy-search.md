@@ -5,7 +5,7 @@
 | **Epic**         | E3 — Public API Gateway |
 | **Story Points** | 5                      |
 | **Priority**     | Medium                 |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 3](index.md) · [Backlog](../index.md)
 
@@ -121,7 +121,7 @@ start; the index had not.
 - [x] CI covers the new code
 - [x] Documentation updated — `openapi.yaml` gained `type`, `limit`, the `503`
       response and the `unavailable` code
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

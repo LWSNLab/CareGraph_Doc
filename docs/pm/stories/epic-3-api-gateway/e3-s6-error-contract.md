@@ -5,7 +5,7 @@
 | **Epic**         | E3 — Public API Gateway |
 | **Story Points** | 3                      |
 | **Priority**     | Medium                 |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > **Sequencing.** Pulled ahead of [E3-S4](e3-s4-auth-rate-limiting.md) despite the
 > lower priority: E3-S4 introduces `401` and `429` bodies, and those should be
@@ -156,7 +156,7 @@ and the matching log record:
 - [x] Documentation updated — shared `Error` schema in `openapi.yaml`, `405`/`500`
       added to both live endpoints, and a code table plus correlation section on
       the API page
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

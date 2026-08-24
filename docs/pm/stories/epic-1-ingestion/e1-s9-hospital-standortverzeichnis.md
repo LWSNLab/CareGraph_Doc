@@ -5,7 +5,7 @@
 | **Epic**         | E1 — Ingestion & ETL     |
 | **Story Points** | 3                        |
 | **Priority**     | High                     |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 1](index.md) · [Backlog](../index.md)
 
@@ -158,7 +158,7 @@ Verified — with 9,192 rows in the database the export still writes 7,522.
 - [x] CI covers the new code
 - [x] Documentation updated — `krankenhaus` added to the `ProviderType` enum in
       `openapi.yaml` and to the API page
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

@@ -3,7 +3,7 @@
 > **Base URL (production):** `https://api.caregraph.de`
 > **Base URL (local dev):** `http://localhost:8080`
 > **Authentication:** API key in the `X-API-Key` header
-> The query endpoints live under `/v1`; `/healthz` and `/openapi.yaml` do not.
+> The query endpoints live under `/v1`; `/healthz`, `/readyz` and `/openapi.yaml` do not.
 
 ---
 
@@ -149,7 +149,10 @@ engine is down it answers `503`. Neither is an empty result — that would say
 Path parameter `ik_nummer` — the official 9-digit Institutionskennzeichen
 (`^[0-9]{9}$`).
 
-> ¹ **Only insurers are addressable today** — 92 of 93 resolve. Every
+> ¹ **Only insurers are addressable today** — 92 of 93 resolve *on a fully
+> ingested instance*. The published release archive contains care providers only,
+> so on a fresh self-hosted install this endpoint answers `404` for everything
+> until `make load-insurers` has run against the GKV publication. Every
 > Leistungserbringer has an IK, but no public source publishes those of care
 > providers or hospitals. Reach them via `/v1/infrastructure/near` or
 > `/v1/infrastructure/search`. Tracked in the backlog as *Provider IK numbers*.

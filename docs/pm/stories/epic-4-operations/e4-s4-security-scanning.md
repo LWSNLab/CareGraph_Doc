@@ -5,7 +5,7 @@
 | **Epic**         | E4 — Operations & CI/CD |
 | **Story Points** | 3                     |
 | **Priority**     | High                  |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 4](index.md) · [Backlog](../index.md) · [Security & Privacy](../../../architecture/security.md)
 
@@ -66,7 +66,7 @@ The CodeQL job carries `if: github.event.repository.visibility == 'public' || va
 - [x] Tests passing (all scanners run clean locally after the `x/text` fix)
 - [x] CI covers the new code (pipeline extended if needed)
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 

@@ -5,7 +5,7 @@
 | **Epic**         | E3 — Public API Gateway |
 | **Story Points** | 2                      |
 | **Priority**     | Medium                 |
-| **Status**       | ✅ Done (pending review) |
+| **Status**       | ✅ Done |
 
 > ← [Epic 3](index.md) · [Backlog](../index.md)
 
@@ -142,7 +142,7 @@ sample data.
 - [x] Tests passing (unit + integration where relevant) — nine tests, 22 table cases
 - [x] CI covers the new code (pipeline extended if needed) — covered by the existing `go test ./...`
 - [x] Documentation updated
-- [ ] Code reviewed
+- [x] Code reviewed
 
 ## References
 
