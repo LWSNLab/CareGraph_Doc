@@ -12,7 +12,7 @@
 | [E1-S5 — Deduplication](e1-s5-deduplication.md) | 5 | Medium | ⏳ Planned |
 | [E1-S6 — IK-Nummer enrichment](e1-s6-ik-enrichment.md) | 3 | Medium | ✅ Done |
 | [E1-S7 — Official open-data supplement](e1-s7-official-open-data.md) | 5 | Medium | ⏳ Planned |
-| [E1-S8 — Provider IK numbers](e1-s8-provider-ik.md) | 5 | High | ⏳ Planned |
+| [E1-S8 — Provider IK numbers](e1-s8-provider-ik.md) | 5 | High | 🔄 In Progress |
 | [E1-S9 — Hospitals from the Bundes-Klinik-Atlas](e1-s9-hospital-standortverzeichnis.md) | 3 | High | ✅ Done |
 
 _Story points & priorities are initial drafts — adjust as needed._

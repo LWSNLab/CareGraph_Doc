@@ -5,7 +5,7 @@
 | **Epic**         | E1 — Ingestion & ETL     |
 | **Story Points** | 5                        |
 | **Priority**     | High                     |
-| **Status**       | ⏳ Planned               |
+| **Status**       | 🔄 In Progress — referred onward, see below |
 
 > ← [Epic 1](index.md) · [Backlog](../index.md)
 
@@ -46,6 +46,65 @@ The ARGE·IK finding is the most decisive of these: the organisation that assign
 We would like to work **with** these bodies rather than around them. The § 7 SGB XI data is legally intended for publication, and the portals exist to discharge that transparency duty; a machine-readable export would serve the same purpose for municipalities, researchers and application developers who today cannot use the data programmatically. Corrections we find during processing — outdated addresses, duplicates — we would gladly return.
 
 Whether and on what terms such an export is possible is theirs to decide, and any conditions attached would be adopted in full. A draft enquiry is kept outside the published documentation (`internal/`).
+
+## What came back
+
+Asked the GKV-Spitzenverband on **2026-08-10**; answered **2026-08-24**. Not a
+refusal — a referral to the **zuständiger Landesverband der Pflegekassen**, which
+is one of the two holders this story had already identified. The analysis above
+was right about where the data sits.
+
+It does not answer the question that was asked. The reply speaks about § 115
+Abs. 1a/1b and § 7 Abs. 3 SGB XI — quality reporting, care information, price and
+comparison lists — and never mentions Institutionskennzeichen. Either the
+enquiry was read as one about quality data, or it was written ambiguously enough
+to be. Sending sixteen letters on that footing would have produced sixteen
+answers about the wrong dataset.
+
+Two things follow, and they run in sequence rather than in parallel — decided
+2026-08-25, against the first plan. Parallel would have saved waiting; sequential
+saves guessing, and guessing is the expensive part. Nobody publishes which body
+leads the working group for a given task, so a letter sent before the referral is
+clarified is addressed partly by inference. If the reply names the
+DatenClearingStelle or a specific Landesverband, that inference disappears:
+
+- **A clarification back to the same desk**, saying plainly that this is about one
+  field per facility, and asking whether the DatenClearingStelle Pflege is the
+  central route or whether each Landesverband really must be asked separately.
+  Only the coordinating body can answer that one.
+- **Then one** Landesverband as a pilot, to learn the procedure — whether it is
+  possible at all, in what form, on what terms, and whether there is a form or an
+  agreement. Whatever comes back applies to the other fifteen. A first contact can
+  only be made once per body, which is the argument against fanning out early: if
+  the pilot turns out to name a regular application process, the remaining fifteen
+  are paperwork rather than introductions and can go out together.
+
+The contacts that could be established, and the ones that deliberately could not,
+are recorded in `internal/contacts-pflegekassen.md`. There is no list of sixteen
+addresses, and that is a finding rather than a gap: the Landesverbände are working
+groups that divide tasks among themselves, so the leading fund depends on the
+subject as well as the state. The reliable anchor is § 72 SGB XI — whoever
+administers the Versorgungsvertrag holds the register.
+
+Both drafts are in `internal/`, and both now link the public repository. That is
+worth more than the prose around it: `db/migrations/0001_init.sql` shows
+`ik_nummer` already modelled and unique, so the ask is concrete rather than
+speculative, and `pipelines/dataset/export.py` shows Bundes-Klinik-Atlas records
+ingested but withheld from every published archive while a redistribution
+question is open. A data holder asking "what would you do with it" can read the
+answer instead of being told.
+
+The letters therefore offer two routes explicitly — internal use only, or
+inclusion in the published dataset under their licence and attribution — and the
+first is enforceable rather than promised, because the exporter carries an
+allowlist.
+
+**A side benefit if this route holds.** The reply itself names the § 7 Abs. 3
+price and comparison lists. [Data Sources & Licensing](../../../legal/data-licensing.md)
+records those directories as the strongest legal footing available and also
+records that they are *not* ingested — providers come from OpenStreetMap. Access
+through this route would improve the provider records themselves, not only add a
+column.
 
 ⚠️ **"It is already public" is not a licence.** Individual facts are free, but a compiled directory can be protected under the *sui generis* database right (§§ 87a ff. UrhG), and aggregating a substantial part centrally is precisely the case that right addresses. The request should therefore ask for **permission and terms**, not assert that none are needed — see [Data Sources & Licensing](../../../legal/data-licensing.md).
 
