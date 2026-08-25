@@ -61,16 +61,30 @@ enquiry was read as one about quality data, or it was written ambiguously enough
 to be. Sending sixteen letters on that footing would have produced sixteen
 answers about the wrong dataset.
 
-Two things follow, and they run in parallel rather than in sequence:
+Two things follow, and they run in sequence rather than in parallel — decided
+2026-08-25, against the first plan. Parallel would have saved waiting; sequential
+saves guessing, and guessing is the expensive part. Nobody publishes which body
+leads the working group for a given task, so a letter sent before the referral is
+clarified is addressed partly by inference. If the reply names the
+DatenClearingStelle or a specific Landesverband, that inference disappears:
 
 - **A clarification back to the same desk**, saying plainly that this is about one
   field per facility, and asking whether the DatenClearingStelle Pflege is the
   central route or whether each Landesverband really must be asked separately.
   Only the coordinating body can answer that one.
-- **One** Landesverband as a pilot, to learn the procedure — whether it is
+- **Then one** Landesverband as a pilot, to learn the procedure — whether it is
   possible at all, in what form, on what terms, and whether there is a form or an
   agreement. Whatever comes back applies to the other fifteen. A first contact can
-  only be made once per body, which is the argument against fanning out early.
+  only be made once per body, which is the argument against fanning out early: if
+  the pilot turns out to name a regular application process, the remaining fifteen
+  are paperwork rather than introductions and can go out together.
+
+The contacts that could be established, and the ones that deliberately could not,
+are recorded in `internal/contacts-pflegekassen.md`. There is no list of sixteen
+addresses, and that is a finding rather than a gap: the Landesverbände are working
+groups that divide tasks among themselves, so the leading fund depends on the
+subject as well as the state. The reliable anchor is § 72 SGB XI — whoever
+administers the Versorgungsvertrag holds the register.
 
 Both drafts are in `internal/`, and both now link the public repository. That is
 worth more than the prose around it: `db/migrations/0001_init.sql` shows
