@@ -79,6 +79,31 @@ DatenClearingStelle or a specific Landesverband, that inference disappears:
   the pilot turns out to name a regular application process, the remaining fifteen
   are paperwork rather than introductions and can go out together.
 
+### The clarification worked
+
+Answered the next day, 2026-08-25, and it settled three things.
+
+The IK is in **neither** the DatenClearingStelle's data **nor** the price and
+comparison lists under § 7 Abs. 3 — stated by the body best placed to know, which
+closes both routes and retires the hope that access there would improve the
+provider records as a side effect. It does not: those lists do not carry the
+number.
+
+The IK is a **contract datum**, so the holder is the contracting party. That is
+the same conclusion § 72 SGB XI supports, now confirmed rather than inferred.
+
+And the part that changes the plan: a **Verband der Pflegekassen auf Bundesebene**
+— the vdek or the AOK-Bundesverband — can be approached *on behalf of* the
+Landesverbände. Sixteen doors become one. That question was the reason for
+clarifying instead of writing sixteen letters, and it paid for itself in a day.
+
+The remaining obstacle is smaller and more ordinary: an earlier approach to the
+vdek went unanswered, almost certainly because it reached a general address
+rather than a desk. A third mail therefore asks the same contact for a named one,
+offers to copy her in so the referral is visible to the recipient, and mentions
+forwarding only as the softest option — a name costs her nothing, forwarding
+spends her own standing.
+
 The contacts that could be established, and the ones that deliberately could not,
 are recorded in `internal/contacts-pflegekassen.md`. There is no list of sixteen
 addresses, and that is a finding rather than a gap: the Landesverbände are working
