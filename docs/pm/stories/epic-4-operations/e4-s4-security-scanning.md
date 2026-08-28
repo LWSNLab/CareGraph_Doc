@@ -28,18 +28,20 @@ Establish continuous scanning across code, dependencies and secrets, plus a docu
 
 ## Technical Notes
 
-**Billing shaped the design.** Both repos are currently **private**, where CodeQL and Secret Protection require GitHub Advanced Security (billed per active committer), while Dependabot is free everywhere. So:
+**Billing shaped the design, and then the design outlived the billing.** Both repos were private when this was written, and there CodeQL and Secret Protection require GitHub Advanced Security, billed per active committer, while Dependabot is free everywhere. So:
 
-| Check | Tool | Private today | When public (E5-S1) |
+| Check | Tool | While private | Since [E5-S1](../epic-5-open-source/e5-s1-repo-licensing.md) |
 | :-- | :-- | :-- | :-- |
-| Static analysis | CodeQL (`security-extended`) | guarded — skips | activates automatically |
+| Static analysis | CodeQL (`security-extended`) | guarded — skipped | ✅ running |
 | Dependency updates | Dependabot | ✅ active | ✅ |
 | Go vulnerabilities | `govulncheck` | ✅ active | ✅ |
 | Python vulnerabilities | `pip-audit` | ✅ active | ✅ |
 | Secrets | `gitleaks` (full history) | ✅ active | ✅ |
-| PR dependency review | `dependency-review-action` | guarded — skips | activates automatically |
+| PR dependency review | `dependency-review-action` | guarded — skipped | ✅ running |
 
-The CodeQL job carries `if: github.event.repository.visibility == 'public' || vars.ENABLE_CODEQL == 'true'`. Without that guard the workflow would fail on every push while the repo is private, and a permanently red pipeline is worse than no pipeline. Setting the repository variable `ENABLE_CODEQL=true` switches it on early if Advanced Security is purchased.
+The CodeQL job carries `if: github.event.repository.visibility == 'public' || vars.ENABLE_CODEQL == 'true'`. Without that guard the workflow would have failed on every push while the repo was private, and a permanently red pipeline is worse than no pipeline. Both repositories went public on **2026-08-25**, so the condition is now satisfied by the first branch and the guard costs nothing — it stays because it is what makes a fork of this repository work either way.
+
+**What CodeQL found once it ran.** Thirteen alerts, all `go/log-injection`, all false positives: the service logs through a JSON handler, which escapes every attribute value, so a newline cannot close a record and forge a second one. Dismissing them is only defensible while that holds, so `TestLogValuesCannotForgeARecord` asserts it — switch the handler to text and the build fails. The alerts did point at something real, though not what they claimed: the access log recorded the query string verbatim beside `client_ip`, filing an address together with a location. That is fixed separately, in [E4-S6](e4-s6-deployment.md).
 
 **`govulncheck` over a generic scanner:** it reports only vulnerabilities *reachable from our code*, which keeps the noise down — it distinguished 1 reachable issue from 36 unreachable ones on the first run.
 
@@ -57,7 +59,7 @@ The CodeQL job carries `if: github.event.repository.visibility == 'public' || va
 ## Risks
 
 - **Alert fatigue**: grouped Dependabot PRs and reachability-based scanning keep the volume manageable; revisit if it still becomes noisy.
-- **Guarded checks give a false sense of coverage** while the repo is private — CodeQL is configured but *not running*. Enable it explicitly, or accept that static analysis starts at open-sourcing.
+- ~~**Guarded checks give a false sense of coverage** while the repo is private — CodeQL is configured but *not running*.~~ **Closed 2026-08-25**: both repositories are public and CodeQL runs on every push. The risk was real while it lasted — the first run produced thirteen alerts on code that had been in the repository for weeks.
 - **Actions are pinned to tags, not commit SHAs.** SHA pinning is the stricter supply-chain practice; Dependabot can maintain it. Deliberately deferred for readability — revisit before the public launch.
 
 ## Definition of Done

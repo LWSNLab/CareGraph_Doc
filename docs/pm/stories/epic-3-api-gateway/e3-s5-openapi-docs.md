@@ -120,10 +120,11 @@ sample data.
   already tested and in use, to prevent a class of drift the tests now catch
   directly. Cost without the benefit.
 - **Swagger UI rendered on this site.** It needs a URL the browser can fetch,
-  and the repository is still private — the page would render an error. It
-  belongs with [E5-S1](../epic-5-open-source/e5-s1-repo-licensing.md), when the
-  raw URL resolves. Until then `editor.swagger.io` and the served endpoint
-  cover it.
+  which a private repository could not offer — the page would have rendered an
+  error. That obstacle is gone since [E5-S1](../epic-5-open-source/e5-s1-repo-licensing.md)
+  made the repository public on 2026-08-25, so the raw URL now resolves and this
+  is buildable whenever it is worth the page. `editor.swagger.io` and the served
+  endpoint still cover it in the meantime.
 
 ## Dependencies
 

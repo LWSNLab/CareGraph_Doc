@@ -26,8 +26,8 @@
 | [E2 — Data Model & Search](epic-2-data-and-search/index.md) | 3 | 11 | 1 / 2 / 0 | 🚧 (2 ✅) |
 | [E3 — Public API Gateway](epic-3-api-gateway/index.md) | 6 | 22 | 3 / 3 / 0 | ✅ (6 ✅) |
 | [E4 — Operations & CI/CD](epic-4-operations/index.md) | 6 | 18 | 3 / 2 / 1 | 🚧 (5 ✅) |
-| [E5 — Open Source & Funding](epic-5-open-source/index.md) | 3 | 8 | 0 / 2 / 1 | ⏳ |
+| [E5 — Open Source & Funding](epic-5-open-source/index.md) | 3 | 8 | 0 / 2 / 1 | 🚧 (1 ✅) |
 | [E6 — Commercial / DaaS](epic-6-commercial/index.md) | 2 | 13 | 0 / 0 / 2 | ⏳ |
-| **Total** | **29** | **114** | **12 / 13 / 4** | **18 done · 11 planned** |
+| **Total** | **29** | **114** | **12 / 13 / 4** | **19 done · 10 planned** |
 
 _Story points & priorities are initial drafts — adjust as the backlog is refined._

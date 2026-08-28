@@ -114,9 +114,13 @@ resolving to the host, so it can only be confirmed on the first real deployment.
 
 - The first release is also the first ACME run. Let's Encrypt rate-limits failed
   issuance, so DNS should resolve before the stack starts.
-- GHCR is free for public repositories. While the repository is private, the
+- ~~GHCR is free for public repositories. While the repository is private, the
   ingestion image alone would nearly fill the free package quota — another reason
-  the first merge to `main` belongs after [E5-S1](../epic-5-open-source/e5-s1-repo-licensing.md).
+  the first merge to `main` belongs after [E5-S1](../epic-5-open-source/e5-s1-repo-licensing.md).~~
+  **Resolved**: the repository went public on 2026-08-25 and the first release
+  followed. One thing the ordering did not anticipate — a *new* GHCR package is
+  created private even under a public repository, so both had to be switched by
+  hand before a server could pull them anonymously.
 
 ## Definition of Done
 
