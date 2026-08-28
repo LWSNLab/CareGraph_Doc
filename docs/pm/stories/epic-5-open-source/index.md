@@ -5,7 +5,7 @@
 
 | Story | Points | Priority | Status |
 | :-- | :--: | :--: | :--: |
-| [E5-S1 — Public repository & licensing](e5-s1-repo-licensing.md) | 2 | Medium | 🔄 In Progress |
+| [E5-S1 — Public repository & licensing](e5-s1-repo-licensing.md) | 2 | Medium | ✅ Done |
 | [E5-S2 — Governance & data quality](e5-s2-governance.md) | 3 | Low | ⏳ Planned |
 | [E5-S3 — Funding applications](e5-s3-funding.md) | 3 | Medium | ⏳ Planned |
 

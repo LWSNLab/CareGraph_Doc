@@ -301,9 +301,12 @@ rotation are what systemd and Docker already do, and the pipelines are scheduled
 jobs rather than long-lived children of the API.
 
 **Image builds live in their own workflow** (`.github/workflows/images.yml`) with
-a paths filter, not in `ci.yml`. The ingestion image takes minutes to build and
-this repository is private, so every run consumes billed Actions minutes; it runs
-when something that goes *into* an image changes. Two of its steps guard the
+a paths filter, not in `ci.yml`. The ingestion image takes minutes to build, and
+while the repository was private every run consumed billed Actions minutes; it
+runs when something that goes *into* an image changes. Public repositories get
+those minutes for free since [E5-S1](../epic-5-open-source/e5-s1-repo-licensing.md),
+so the filter now buys waiting time rather than money — which is still worth
+having on a build measured in minutes. Two of its steps guard the
 mistakes above: the API healthcheck must fail with no server running, and the
 ingestion image must be able to read `db/migrations`.
 

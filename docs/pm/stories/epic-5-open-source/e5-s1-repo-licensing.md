@@ -5,7 +5,7 @@
 | **Epic**         | E5 — Open Source & Funding   |
 | **Story Points** | 2                            |
 | **Priority**     | Medium                       |
-| **Status**       | 🔄 In Progress — everything prepared; the switch itself is unflipped |
+| **Status**       | ✅ Done — published 2026-08-25 |
 
 > ← [Epic 5](index.md) · [Backlog](../index.md)
 
@@ -33,9 +33,10 @@ indexed within hours, and none of that comes back.
 - [x] A documented way to request an API key — an issue template, plus the path
       named in the README and `CONTRIBUTING.md`.
 - [x] **The pre-publication checklist below is complete.**
-- [ ] **Both repositories switched to public.**
-- [ ] The steps that publication makes free are taken: GHCR image push, and
-      GitHub Code Quality and Secret Protection switched back on.
+- [x] **Both repositories switched to public** — 2026-08-25.
+- [x] The steps that publication makes free are taken: both GHCR packages are
+      pushed and publicly pullable, and CodeQL now runs on every push. Its first
+      run produced thirteen alerts — see [E4-S4](../epic-4-operations/e4-s4-security-scanning.md).
 
 ## Before flipping the switch
 
@@ -129,10 +130,12 @@ a chore, say more than one or two requests a week.
 
 ## Definition of Done
 
-- [ ] Acceptance criteria fulfilled
-- [ ] Tests passing (unit + integration where relevant)
-- [ ] CI covers the new code (pipeline extended if needed)
-- [ ] Documentation updated
+- [x] Acceptance criteria fulfilled
+- [x] Tests passing (unit + integration where relevant) — no code changed here;
+      the checklist was walked and measured instead
+- [x] CI covers the new code — issue and PR templates validated as YAML; CodeQL
+      and the dependency review now run for real rather than being skipped
+- [x] Documentation updated
 - [ ] Code reviewed
 
 ## References
