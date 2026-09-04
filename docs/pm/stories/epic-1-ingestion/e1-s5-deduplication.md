@@ -19,13 +19,17 @@ Detect and merge records that refer to the same institution across multiple sour
 
 ## Acceptance Criteria
 
-- [ ] Match on IK-Nummer, then address + name similarity.
+- [ ] Match on address + name similarity. (IK where present — insurers only.)
 - [ ] Merge strategy keeps provenance of each field.
 - [ ] Validation report produced per run.
 
 ## Technical Notes
 
-Blocking on PLZ/city to keep pairwise comparisons cheap; fuzzy name/address matching for the residual. IK-Nummer is the strongest key when present.
+Blocking on PLZ/city to keep pairwise comparisons cheap; fuzzy name/address matching for the residual.
+
+**There is no strong key for providers, and there will not be one.** IK-Nummer is the strongest key when present, but it is present only for statutory insurers: the bodies holding the provider pairing declined to share it in writing, and [E1-S8](e1-s8-provider-ik.md) is closed as a result. Deduplication therefore rests on name and address similarity alone, permanently rather than until the key arrives.
+
+That raises the cost of a wrong merge and lowers the acceptable threshold. Two providers at one address with similar names are commonplace in this data — a nursing home and the outpatient service run from the same building are distinct entities, not a duplicate. **Refuse rather than guess:** an unmerged pair is visible in the record count, a wrongly merged one is silent.
 
 ## Dependencies
 
