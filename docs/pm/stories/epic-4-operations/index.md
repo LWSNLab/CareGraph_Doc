@@ -11,5 +11,6 @@
 | [E4-S4 — Security scanning & supply chain](e4-s4-security-scanning.md) | 3 | High | ✅ Done |
 | [E4-S5 — Distributable dataset](e4-s5-distributable-dataset.md) | 3 | High | ✅ Done |
 | [E4-S6 — Deployment & continuous delivery](e4-s6-deployment.md) | 3 | High | ✅ Done |
+| [E4-S7 — Secret recovery](e4-s7-secret-recovery.md) | 2 | High | ⏳ Planned |
 
 _Story points & priorities are initial drafts — adjust as needed._
