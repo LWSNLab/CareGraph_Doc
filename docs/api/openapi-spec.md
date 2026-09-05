@@ -166,6 +166,7 @@ Path parameter `ik_nummer` — the official 9-digit Institutionskennzeichen
   "total": 1,
   "data": [
     {
+      "source_id": "osm:way/123456789",
       "id": "f3467c0f-7956-4483-aacb-6c0be233ff82",
       "type": "pflegedienst_ambulant",
       "name": "Ambulanter Pflegedienst",
@@ -192,10 +193,31 @@ Path parameter `ik_nummer` — the official 9-digit Institutionskennzeichen
 `ik_nummer` — the key is absent, not set to `null`. Test for the key's presence;
 `data[0].ik_nummer === null` will not do what you want.
 
-Required in every record: `id`, `type`, `name`, `address` (and within it
-`street`, `postal_code`, `city`). Everything else may be missing. `details` is
-source-specific and deliberately outside the stable contract — treat every key
-in it as optional.
+Required in every record: `source_id`, `id`, `type`, `name`, `address` (and
+within it `street`, `postal_code`, `city`). Everything else may be missing.
+`details` is source-specific and deliberately outside the stable contract — treat
+every key in it as optional.
+
+### Which identifier to store
+
+**`source_id`.** It is derived from the source object — `osm:way/123456789` — and
+it travels: it is a column in the published dataset, so every instance that
+imported the same archive answers with the same value. A reference stored here
+still resolves against somebody else's deployment.
+
+**Not `id`.** That is a database primary key, minted by whichever instance wrote
+the row. Two deployments give the same provider different values, and re-importing
+the dataset into an empty database changes them again. It is useful for talking to
+one deployment about one row, and for nothing that outlives that conversation.
+
+This is easy to get wrong in the direction that costs most, because nothing fails
+when a stored `id` stops matching. The row is simply not found, and the gap looks
+like a provider that closed down.
+
+One honest limit: `source_id` is stable, not eternal. It follows the source
+object, so an OpenStreetMap way that is split or re-drawn takes a new one. What
+happens to the old value is not promised yet — until it is, treat a reference that
+stops resolving as a record to look up again rather than as an error.
 
 ---
 

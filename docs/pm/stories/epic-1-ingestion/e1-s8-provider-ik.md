@@ -5,7 +5,7 @@
 | **Epic**         | E1 — Ingestion & ETL     |
 | **Story Points** | 5                        |
 | **Priority**     | High                     |
-| **Status**       | 🔄 In Progress — referred onward, see below |
+| **Status**       | ❌ Won't do — refused in writing 2026-09-04 |
 
 > ← [Epic 1](index.md) · [Backlog](../index.md)
 
@@ -19,7 +19,25 @@ Every Leistungserbringer billing with German social insurance holds an IK — it
 
 This story is mostly **not a coding task**: the work is obtaining lawful access to the data, then a comparatively small ingestion step.
 
+## Outcome
+
+**Closed without the data, 2026-09-04.** The access route this story set out to
+find does not exist. It was not abandoned for cost or difficulty — it was walked
+to its end and refused in writing by the body named as competent.
+
+That makes this story documentation rather than a plan, and useful as such: the
+absence of provider IKs in CareGraph is now an answered question with a paper
+trail, not a gap someone will keep re-opening.
+
+**What it costs is smaller than it looked.** The IK was never needed to *find* a
+provider — that is name, region and coordinates, and it works. It was needed to
+*match* one against a third party's records, which is the B2B integrator in the
+user story below. That use case is closed; search and radius lookup are not
+affected.
+
 ## Acceptance Criteria
+
+*Not met, and no longer pursued — see Outcome.*
 
 - [ ] A lawful access route to provider IKs is established (agreement, official export, or a source that turns out to publish them).
 - [ ] IKs are loaded into `care_infrastructure.ik_nummer` for the covered providers.
@@ -105,7 +123,40 @@ forwarding only as the softest option — a name costs her nothing, forwarding
 spends her own standing.
 
 The contacts that could be established, and the ones that deliberately could not,
-are recorded in `internal/contacts-pflegekassen.md`. There is no list of sixteen
+are recorded in `internal/contacts-pflegekassen.md`.
+
+### And then the answer, 2026-09-04
+
+The GKV-Spitzenverband asked for consent and forwarded the whole thread to a
+colleague — more than the name that had been requested. The vdek answered as a
+Bundesverband, that is, on behalf of the Landesverbände, and declined:
+
+- The IK is in neither the § 115 Abs. 1a quality data nor the § 7 Abs. 3 lists,
+  and therefore **not among the data whose publication is legally provided for**.
+- It exists to identify Leistungserbringer in administrative and billing
+  procedures — not as a record made available for wider public use.
+- ARGE·IK does not publish provider IKs either, which they cite as evidence of
+  what kind of data it is rather than as a coincidence.
+
+Three bodies, one conclusion, and no contradiction between them. The ARGE·IK
+finding recorded in this story two months earlier — that the organisation issuing
+every IK deliberately excludes Leistungserbringer — turns out to have been the
+whole answer; the rest was confirmation.
+
+**Not appealed, deliberately.** There is a soft spot in the reasoning: *no basis
+to provide* conflates "not obliged to publish" with "not permitted to share",
+and what was asked for was a discretionary release on their own terms. But a
+rebuttal to a considered decision rarely reverses it, and the sector is small
+enough that the same people reappear. The AOK-Bundesverband, the other body named,
+was not asked either: the vdek answered on behalf of the Landesverbände, and
+re-asking a sister association after a documented refusal is shopping for an
+answer, not seeking one.
+
+**What the correspondence is worth.** For a funding application, *"we asked the
+competent bodies, here is their written answer"* carries further than *"the data
+could not be found"*. It documents diligence, and it documents something about
+German care-data infrastructure worth naming: the key the entire sector settles
+accounts on is unavailable to anyone outside the settling. There is no list of sixteen
 addresses, and that is a finding rather than a gap: the Landesverbände are working
 groups that divide tasks among themselves, so the leading fund depends on the
 subject as well as the state. The reliable anchor is § 72 SGB XI — whoever
@@ -138,7 +189,12 @@ column.
 ## Dependencies
 
 - **Depends on:** E1-S2 (the provider records to enrich)
-- **Blocks:** the IK lookup endpoint for providers; materially improves [E1-S5](e1-s5-deduplication.md), which currently has no strong key for providers
+- **Blocked:** ~~the IK lookup endpoint for providers; materially improves
+  [E1-S5](e1-s5-deduplication.md)~~ — both are now permanent. Providers cannot be
+  addressed by IK, and deduplication has to work on name and address similarity
+  without a strong key ever arriving. E1-S5's own rule carries more weight for
+  it: **refuse rather than guess**, because a wrong merge is as silent as a wrong
+  IK would have been.
 
 ## Risks
 

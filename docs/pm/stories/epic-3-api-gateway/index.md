@@ -1,4 +1,4 @@
-# EPIC 3 — Public API Gateway ✅
+# EPIC 3 — Public API Gateway 🚧
 
 > Low-latency REST API, auth, and scalable request handling. Roadmap Phase 3.
 > ← [Backlog overview](../index.md) · [PRD](../../prd.md) · [API Specification](../../../api/openapi-spec.md)
@@ -11,6 +11,8 @@
 | [E3-S4 — Auth & rate limiting](e3-s4-auth-rate-limiting.md) | 5 | High | ✅ Done |
 | [E3-S5 — OpenAPI & docs](e3-s5-openapi-docs.md) | 2 | Medium | ✅ Done |
 | [E3-S6 — Uniform error contract & request correlation](e3-s6-error-contract.md) | 3 | Medium | ✅ Done |
+| [E3-S7 — The record identifier is not stable](e3-s7-stable-record-identifier.md) | 2 | High | 🐞 Bug · ⏳ Planned |
+| [E3-S8 — Record matching for integrators](e3-s8-record-matching.md) | 5 | Medium | ⏳ Planned |
 
 _Story points & priorities are initial drafts — adjust as needed._
 
