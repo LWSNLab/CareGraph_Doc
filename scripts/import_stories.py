@@ -55,6 +55,7 @@ class Story:
     priority: str          # "High"
     epic: str              # "E1 — Ingestion & ETL"
     status: str            # "✅ Done" / "⏳ Planned"
+    kind: str              # "Story" / "Bug" — from the optional **Type** row
     path: Path
     body_source: str = field(repr=False)
 
@@ -68,7 +69,9 @@ class Story:
 
     @property
     def labels(self) -> list[str]:
-        labels = ["story", f"epic:{self.epic_key}"]
+        # A bug and a story are read differently: one describes work to plan, the
+        # other something that is wrong now. Labelling both "story" hides that.
+        labels = [slug(self.kind) or "story", f"epic:{self.epic_key}"]
         if self.points.isdigit():
             labels.append(f"points:{self.points}")
         if self.priority:
@@ -78,6 +81,21 @@ class Story:
     @property
     def is_done(self) -> bool:
         return "✅" in self.status or "done" in self.status.lower()
+
+    @property
+    def is_abandoned(self) -> bool:
+        """Decided against, rather than finished — e.g. "❌ Won't do"."""
+        return "❌" in self.status or "won\u0027t do" in self.status.lower()
+
+    @property
+    def is_closed(self) -> bool:
+        return self.is_done or self.is_abandoned
+
+    @property
+    def close_reason(self) -> str:
+        """GitHub distinguishes the two, and for an abandoned story that
+        distinction is the whole content: it was decided, not delivered."""
+        return "not planned" if self.is_abandoned else "completed"
 
     def body(self, source_repo: str | None) -> str:
         """Issue body: the story without its title, breadcrumb and Status row.
@@ -140,6 +158,7 @@ def parse_story(path: Path) -> Story | None:
         priority=fields.get("Priority", ""),
         epic=fields.get("Epic", "unknown"),
         status=fields.get("Status", ""),
+        kind=fields.get("Type", "Story"),
         path=path,
         body_source=text,
     )
@@ -283,8 +302,9 @@ def main() -> int:
                 gh("issue", "edit", str(issue["number"]), "--repo", args.repo,
                    "--title", story.title, "--body", body,
                    *sum((["--add-label", label] for label in story.labels), []))
-                if args.close_done and story.is_done and issue.get("state") == "OPEN":
-                    gh("issue", "close", str(issue["number"]), "--repo", args.repo)
+                if args.close_done and story.is_closed and issue.get("state") == "OPEN":
+                    gh("issue", "close", str(issue["number"]), "--repo", args.repo,
+                       "--reason", story.close_reason)
         else:
             print(f"  create  {'':<6} {story.title}")
             created += 1
@@ -293,8 +313,9 @@ def main() -> int:
                 url = gh("issue", "create", "--repo", args.repo,
                          "--title", story.title, "--body", body,
                          *sum((["--label", label] for label in story.labels), []))
-                if args.close_done and story.is_done:
-                    gh("issue", "close", url, "--repo", args.repo)
+                if args.close_done and story.is_closed:
+                    gh("issue", "close", url, "--repo", args.repo,
+                       "--reason", story.close_reason)
 
         if args.project_number and args.project_owner and url and not args.dry_run:
             add_to_project(args.project_owner, args.project_number, url)

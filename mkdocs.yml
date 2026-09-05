@@ -68,6 +68,7 @@ nav:
               - E2-S1 · PostGIS schema: pm/stories/epic-2-data-and-search/e2-s1-postgis-schema.md
               - E2-S2 · Typesense sync: pm/stories/epic-2-data-and-search/e2-s2-typesense-sync.md
               - E2-S3 · Data validation: pm/stories/epic-2-data-and-search/e2-s3-data-validation.md
+              - E2-S4 · Identifier durability: pm/stories/epic-2-data-and-search/e2-s4-identifier-durability.md
           - 3 · API Gateway:
               - Overview: pm/stories/epic-3-api-gateway/index.md
               - E3-S1 · Radius endpoint: pm/stories/epic-3-api-gateway/e3-s1-radius-endpoint.md
@@ -76,6 +77,8 @@ nav:
               - E3-S4 · Auth & rate limiting: pm/stories/epic-3-api-gateway/e3-s4-auth-rate-limiting.md
               - E3-S5 · OpenAPI & docs: pm/stories/epic-3-api-gateway/e3-s5-openapi-docs.md
               - E3-S6 · Error contract: pm/stories/epic-3-api-gateway/e3-s6-error-contract.md
+              - E3-S7 · Stable record identifier: pm/stories/epic-3-api-gateway/e3-s7-stable-record-identifier.md
+              - E3-S8 · Record matching: pm/stories/epic-3-api-gateway/e3-s8-record-matching.md
           - 4 · Operations & CI/CD:
               - Overview: pm/stories/epic-4-operations/index.md
               - E4-S1 · Containerization: pm/stories/epic-4-operations/e4-s1-containerization.md
