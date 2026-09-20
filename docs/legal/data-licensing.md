@@ -20,7 +20,7 @@ Two legal facts frame everything below:
 
 ## 2. Source-by-Source Assessment
 
-Reviewed against the ingestion code on **2026-08-21**. Everything below is a
+Reviewed against the ingestion code on **2026-09-20**. Everything below is a
 source the pipelines actually read; §2.1 lists what was considered and is not
 used, which is a different and equally load-bearing statement.
 
@@ -30,6 +30,7 @@ used, which is a different and equally load-bearing statement.
 | **GKV-Spitzenverband** — insurer list | 93 statutory insurers, contribution rate, region | Officially published list | Facts are public; re-derived from the official publication, `quelle` + `Stand` recorded. Redistribution terms of the publication itself are unresolved, so insurers are **excluded from the distributed archive**. |
 | **ARGE·IK Schlüsselverzeichnis** (`institut-ba.de`) | Institutionskennzeichen, for enriching insurer records | Official key directory | Used to attach IKs to insurers already collected. Not bulk-copied — lookups against records the project holds. |
 | **Bundes-Klinik-Atlas** open data | 1,577 hospital sites | Federal open-data publication | Ingested into the database, **withheld from every published archive** pending an answer from the Standortverzeichnis (asked 2026-08-10, § 2 Abs. 3). See the caveat in §5. |
+| **Nominatim** (reverse geocoding) | Street, postcode and city for the ~30 % of providers whose OSM object carries no `addr:*` tags | ODbL, same corpus as the coordinates | Derived values are marked in `details.derived_address` with their ODbL attribution: asking OSM about a coordinate that came from OSM describes the enclosing building, which approximates *where* a facility is rather than stating its postal address. Rate-limited to the usage policy, cached, and a full backfill belongs on a self-hosted instance. |
 
 ### 2.1 Considered and not used
 
@@ -40,7 +41,6 @@ not an oversight.
 | :--- | :--- |
 | **Pflege-Transparenz / care directories (§ 7, § 115 SGB XI)** | Legally mandated transparency would be the strongest possible footing, and remains the preferred future source for provider data. Not ingested today — the provider set comes from OpenStreetMap. |
 | **vdek / AOK / ZQP directories** | Provider directories on private sites, protected as compiled databases under §§ 87a–87e UrhG. Not scraped, even where a narrow reading of `robots.txt` might allow it. The question is whom to ask, not how much may be taken — see §6. |
-| **Nominatim** geocoding | Not used. Coordinates come with the OSM objects themselves, so no separate geocoding step exists and no geocoding cache is needed. |
 
 ---
 

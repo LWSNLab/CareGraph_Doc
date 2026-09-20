@@ -26,11 +26,29 @@ Roughly **2,300 of 7,522 providers (30%)** carry a name and coordinates but no s
 
 ## Acceptance Criteria
 
-- [ ] Coordinates → address (street, postcode, city) via Nominatim for providers missing one.
-- [ ] Local cache avoids repeat lookups; failed jobs are retried and reported.
-- [ ] Nominatim usage policy respected (rate limit, identifying User-Agent).
-- [ ] ODbL attribution recorded per derived address.
-- [ ] Derived addresses are marked as such, distinguishable from source-provided ones.
+- [x] Coordinates → address (street, postcode, city) via Nominatim for providers missing one.
+- [x] Local cache avoids repeat lookups; failed jobs are retried and reported.
+- [x] Nominatim usage policy respected (rate limit, identifying User-Agent).
+- [x] ODbL attribution recorded per derived address.
+- [x] Derived addresses are marked as such, distinguishable from source-provided ones.
+
+**Not yet verified against a database.** The lookup, cache, rate limiting and
+marking are covered by tests that need no network; the SQL that selects
+candidates and writes them back has only been read, not run — Docker was not
+available on the machine this was written on. CI has a database and will exercise
+it, and a dry run against real data is the first thing to do after that.
+
+**The rate limit is enforced in three places, because one is not enough.** In the
+client, where the request is made; as a per-run row limit, so a backlog is worked
+through rather than drained; and as a refusal to run `--all` or a sub-second
+interval against the public instance at all. Nominatim's policy asks that bulk
+geocoding not be pointed at it, and ~2,300 rows is bulk. The full backfill belongs
+on a self-hosted instance via `--base-url`.
+
+**Unanswerable coordinates are remembered as unanswerable.** A point Nominatim has
+no address for is stored as such, not left absent — otherwise every run asks the
+same unanswerable questions again, and those are precisely the rows a backfill
+keeps meeting.
 
 ## Technical Notes
 
