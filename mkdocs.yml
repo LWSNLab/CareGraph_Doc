@@ -88,6 +88,7 @@ nav:
               - E4-S5 · Distributable dataset: pm/stories/epic-4-operations/e4-s5-distributable-dataset.md
               - E4-S6 · Deployment & delivery: pm/stories/epic-4-operations/e4-s6-deployment.md
               - E4-S7 · Secret recovery: pm/stories/epic-4-operations/e4-s7-secret-recovery.md
+              - E4-S8 · Versioned rollout: pm/stories/epic-4-operations/e4-s8-versioned-rollout.md
           - 5 · Open Source & Funding:
               - Overview: pm/stories/epic-5-open-source/index.md
               - E5-S1 · Repository & licensing: pm/stories/epic-5-open-source/e5-s1-repo-licensing.md
