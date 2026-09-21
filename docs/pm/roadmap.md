@@ -24,10 +24,10 @@ The CareGraph platform is developed across **four distinct phases**. The objecti
 **Primary Stack**
 
 - Python 3.12
-- Playwright
+- requests
 - BeautifulSoup
 - pdfplumber
-- Polars
+- pandas
 
 **Focus**
 

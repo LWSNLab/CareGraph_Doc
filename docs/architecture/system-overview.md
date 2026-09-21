@@ -25,7 +25,7 @@ We deliberately select tools based on performance, ecosystem maturity, and domai
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ 1. PYTHON (Data Ingestion & Processing)                                     │
-│    • Tech: Python 3.12, Playwright, BeautifulSoup, pdfplumber, Polars       │
+│    • Tech: Python 3.12, requests, BeautifulSoup, pdfplumber, pandas         │
 │    • Role: Scraping, PDF-Parsing, Data Cleaning, Geocoding Pipelines        │
 └──────────────────────────────────────┬──────────────────────────────────────┘
                                        │ Writes Ingested Data
@@ -40,7 +40,7 @@ We deliberately select tools based on performance, ecosystem maturity, and domai
                     ▼                                     ▼
 ┌──────────────────────────────────────┐ ┌────────────────────────────────────┐
 │ 3. C++ / TYPESENSE (Search Engine)   │ │ 4. GO (High-Speed API Gateway)     │
-│    • Tech: Typesense (C++ Core)      │ │    • Tech: Go (Golang), Gin/Fiber  │
+│    • Tech: Typesense (C++ Core)      │ │    • Tech: Go (Golang), Gin        │
 │    • Role: In-Memory Fuzzy Search    │ │    • Role: Public REST API, Auth,  │
 │      with Typo Tolerance (< 2 ms)    │ │      Rate Limiting, JSON Serving   │
 └──────────────────────────────────────┘ └────────────────────────────────────┘
@@ -50,7 +50,7 @@ We deliberately select tools based on performance, ecosystem maturity, and domai
 
 | Component | Technology | Primary Responsibility |
 | :--- | :--- | :--- |
-| **Ingestion Engine** | **Python 3.12** | PDF extraction (`pdfplumber`), web scraping (`Playwright`, `BeautifulSoup`), data transformations (`Polars`). |
+| **Ingestion Engine** | **Python 3.12** | PDF extraction (`pdfplumber`), web scraping (`requests`, `BeautifulSoup`), data transformations (`pandas`). |
 | **Primary Database** | **PostgreSQL + PostGIS** | Spatial calculations (`ST_DWithin`), relational constraints, and flexible metadata storage (`JSONB`). |
 | **Search Engine** | **Typesense (C++)** | Sub-2ms in-memory full-text search with automatic typo tolerance. |
 | **API Gateway** | **Go (Golang)** | High-throughput, low-memory HTTP gateway handling routing, authentication, and rate limiting. |
