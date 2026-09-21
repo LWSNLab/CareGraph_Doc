@@ -50,7 +50,7 @@ Details worth knowing:
 ## Risks
 
 - Flaky integration tests (needing Postgres/Typesense) — use service containers when E1-S4 adds database tests.
-- `uv sync --all-groups` installs the full dependency set including Playwright and Polars, which the current tests do not need; if CI time becomes a problem, split into a lighter test group.
+- ~~`uv sync --all-groups` installs the full dependency set including Playwright and Polars, which the current tests do not need.~~ Both were declared but imported nowhere, and [E4-S1](e4-s1-containerization.md) removed them — `--all-groups` now installs only what is used.
 
 ## Definition of Done
 

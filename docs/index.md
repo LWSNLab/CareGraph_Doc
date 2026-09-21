@@ -8,7 +8,7 @@ Currently, Germany's care infrastructure data is trapped in isolated silos (AOK,
 CareGraph solves this by automatically aggregating, geocoding, and serving this data via a unified spatial graph API.
 
 ## Tech Stack at a Glance
-* **Ingestion Pipelines:** Python (Playwright, pdfplumber, Polars)
+* **Ingestion Pipelines:** Python (requests, BeautifulSoup, pdfplumber, pandas)
 * **Core Storage & Spatial Indexing:** PostgreSQL 16 + PostGIS
 * **In-Memory Search Engine:** C++ (Typesense)
 * **High-Speed API Gateway:** Go (Golang)
