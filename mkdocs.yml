@@ -89,6 +89,7 @@ nav:
               - E4-S6 · Deployment & delivery: pm/stories/epic-4-operations/e4-s6-deployment.md
               - E4-S7 · Secret recovery: pm/stories/epic-4-operations/e4-s7-secret-recovery.md
               - E4-S8 · Versioned rollout: pm/stories/epic-4-operations/e4-s8-versioned-rollout.md
+              - E4-S9 · Least privilege in production: pm/stories/epic-4-operations/e4-s9-least-privilege-in-production.md
           - 5 · Open Source & Funding:
               - Overview: pm/stories/epic-5-open-source/index.md
               - E5-S1 · Repository & licensing: pm/stories/epic-5-open-source/e5-s1-repo-licensing.md
@@ -98,6 +99,7 @@ nav:
               - Overview: pm/stories/epic-6-commercial/index.md
               - E6-S1 · Tiered API access: pm/stories/epic-6-commercial/e6-s1-tiered-access.md
               - E6-S2 · Managed dataset: pm/stories/epic-6-commercial/e6-s2-managed-dataset.md
+              - E6-S3 · Self-service API keys: pm/stories/epic-6-commercial/e6-s3-self-service-keys.md
       - Roadmap: pm/roadmap.md
       - Open Source Strategy: pm/open-source-strategy.md
       - Funding Draft (Prototype Fund): pm/funding-proposal.md

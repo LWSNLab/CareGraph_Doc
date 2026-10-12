@@ -7,5 +7,6 @@
 | :-- | :--: | :--: | :--: |
 | [E6-S1 — Tiered API access](e6-s1-tiered-access.md) | 5 | Low | ⏳ Planned |
 | [E6-S2 — Managed dataset service](e6-s2-managed-dataset.md) | 8 | Low | ⏳ Planned |
+| [E6-S3 — Self-service API keys](e6-s3-self-service-keys.md) | 5 | Low | 💡 Idea |
 
 _Story points & priorities are initial drafts — adjust as needed._

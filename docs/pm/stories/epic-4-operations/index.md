@@ -13,5 +13,6 @@
 | [E4-S6 — Deployment & continuous delivery](e4-s6-deployment.md) | 3 | High | ✅ Done |
 | [E4-S7 — Secret recovery](e4-s7-secret-recovery.md) | 2 | High | ⏳ Planned |
 | [E4-S8 — One version per rollout](e4-s8-versioned-rollout.md) | 3 | Medium | ⏳ Planned |
+| [E4-S9 — The API connects as the database owner](e4-s9-least-privilege-in-production.md) | 2 | High | 🐞 Bug · ⏳ Planned |
 
 _Story points & priorities are initial drafts — adjust as needed._
